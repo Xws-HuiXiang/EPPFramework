@@ -33,7 +33,6 @@ public class AppConst
         }
     }
 
-    //private static string ip = "39.107.124.160";
     private static string ip = "127.0.0.1";
     /// <summary>
     /// 连接服务器的ip地址
