@@ -47,7 +47,7 @@ namespace EPPTools.Utils
                 Console.WriteLine(ex.Message);
             }
             */
-            CopyDirectory(sourceDirPath, targetDirPath, null, overwriteFile);
+            CopyDirectory(sourceDirPath, targetDirPath, null, null, overwriteFile);
         }
 
         /// <summary>
@@ -56,8 +56,9 @@ namespace EPPTools.Utils
         /// <param name="sourceDirPath">源文件夹</param>
         /// <param name="targetDirPath">目标文件夹</param>
         /// <param name="ignoreSuffix">忽略文件的规则。不拷贝文件名称以某些字符串结尾的文件</param>
+        /// <param name="ignoreFolder">忽略的文件夹名称，大小写敏感</param>
         /// <param name="overwriteFile">是否重写文件</param>
-        public static void CopyDirectory(string sourceDirPath, string targetDirPath, List<string> ignoreSuffix, bool overwriteFile = true)
+        public static void CopyDirectory(string sourceDirPath, string targetDirPath, List<string> ignoreSuffix, List<string> ignoreFolder, bool overwriteFile = true)
         {
             try
             {
@@ -91,7 +92,26 @@ namespace EPPTools.Utils
                 //递归，遍历文件夹
                 foreach (string dir in dirs)
                 {
-                    CopyDirectory(dir, targetDirPath + "\\" + Path.GetFileName(dir), ignoreSuffix);
+                    //如果忽略的文件夹列表包含，则跳过
+                    bool isCopy = true;
+                    if (ignoreFolder != null)
+                    {
+                        foreach(string item in ignoreFolder)
+                        {
+                            if (dir.EndsWith(item))
+                            {
+                                //这个是忽略的文件夹
+                                isCopy = false;
+
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isCopy)
+                    {
+                        CopyDirectory(dir, targetDirPath + "\\" + Path.GetFileName(dir), ignoreSuffix, ignoreFolder, overwriteFile);
+                    }
                 }
             }
             catch (Exception ex)

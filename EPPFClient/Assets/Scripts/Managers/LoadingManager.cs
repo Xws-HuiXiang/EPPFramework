@@ -6,8 +6,10 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using CommonProtocol;
 using LitJson;
+using UnityEngine.Networking;
+using LuaInterface;
+using Ciphertext;
 
 /// <summary>
 /// 热更新文件的类型。资源（Res）或者代码（Lua）
@@ -33,47 +35,112 @@ public class LoadingManager : MonoSingleton<LoadingManager>
     /// </summary>
     private int serverLuaVersionNum;
 
+    /// <summary>
+    /// 是否执行加载Game场景的这个逻辑
+    /// </summary>
+    private bool runLoadGameScene = true;
+
+    /// <summary>
+    /// 最下面的提示文字框
+    /// </summary>
+    private Text tip;
+
+    /// <summary>
+    /// 下载更新资源时，已经下载的数据大小
+    /// </summary>
+    private ulong downloadedBytes = 0;
+
     private void Awake()
     {
-        //添加获取版本信息的协议处理回调
-        NetworkManager.AddProtocolHandle((int)MsgHandle.Version, (int)MsgGameVersionHandleMethod.GetGameHotFixVersion, GetHotfixVersionMsgHandle);
+        mInstance = this;
 
         Transform progressTrans = transform.Find("Progress");
         progressSlider = progressTrans.GetComponent<Slider>();
         progressText = transform.Find("Progress/ProgressText").GetComponent<Text>();
+
+        tip = transform.Find("Tips").GetComponent<Text>();
     }
 
     private void Start()
     {
         SetProgressText("对比服务器版本");
 
-        GameHotFixVersion msg = new GameHotFixVersion();
-        msg.ProtocolHandleID = (int)MsgHandle.Version;
-        msg.ProtocolHandleMethodID = (int)MsgGameVersionHandleMethod.GetGameHotFixVersion;
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-        msg.platform = RuntimePlatform.WindowsPlayer;
-#elif UNITY_ANDROID
-        msg.platform = RuntimePlatform.Android;
-#elif UNITY_IOS
-        msg.platform = RuntimePlatform.IPhonePlayer;
-#elif UNITY_PS4
-        msg.platform = RuntimePlatform.PS4;
-#else
-        //没有判断到的平台，默认为PC
-        msg.platform = RuntimePlatform.WindowsPlayer;
-#endif
-        msg.resVersion = 0;
-        msg.luaVersion = 0;
-        NetworkManager.Instance.SendMsg(msg);
+        //开发模式下不检查版本
+        if (!AppConst.DevMode)
+        {
+            DownloadManager.DownloadFile(AppConst.ServerVersionFileURL,
+                (data) => 
+                {
+                    string text = Encoding.UTF8.GetString(data);
+
+                    HotfixVersionData versionData = JsonMapper.ToObject<HotfixVersionData>(text);
+
+                    GetHotfixVersionHandle(versionData.ResVersion, versionData.LuaVersion);
+                },
+                (progress, downloadedBytes) => 
+                {
+                    SetProgressSliderValue(progress);
+                });
+        }
+        else
+        {
+            FDebugger.Log("处于开发模式，不下载版本信息");
+
+            GetHotfixVersionHandle(0, 0);
+        }
+
+        //从服务器拉取最下面显示的提示文字
+        if (tip != null)
+        {
+            string tipURL = AppConst.LoadingTipsRequestURL;
+            HttpRequestManager.HttpGetRequestAsync(tipURL, (content) =>
+            {
+                if(content != null && tip != null)
+                {
+                    GetALoadingTipData data = JsonMapper.ToObject<GetALoadingTipData>(content);
+                    tip.text = data.Content;
+                }
+            });
+        }
+    }
+
+    private void Update()
+    {
+        //因为连接服务器使用的是异步方法，而Unity规定加载场景只能放在Unity的主线程中。所以在这里写：当连接成功后，加载Game场景
+        //加载并进入场景后，Loading场景销毁，此update不会被额外调用
+        if (NetworkManager.Instance.IsConnection && runLoadGameScene)
+        {
+            runLoadGameScene = false;
+
+            SceneManager.LoadScene(AppConst.SceneNameList[2]);
+        }
+
+        if (progressTextAsyncTag)
+        {
+            progressTextAsyncTag = false;
+            SetProgressText(progressTextAsyncText);
+        }
     }
 
     /// <summary>
     /// 设置加载进度条的提示文字
     /// </summary>
-    /// <param name="text"></param>
+    /// <param name="text">文字内容</param>
     public void SetProgressText(string text)
     {
         progressText.text = text;
+    }
+
+    private string progressTextAsyncText;
+    private bool progressTextAsyncTag = false;
+    /// <summary>
+    /// 设置加载进度条的提示文字。异步方法
+    /// </summary>
+    /// <param name="text"></param>
+    public void SetProgressTextAsync(string text)
+    {
+        progressTextAsyncText = text;
+        progressTextAsyncTag = true;
     }
 
     /// <summary>
@@ -88,78 +155,118 @@ public class LoadingManager : MonoSingleton<LoadingManager>
     /// <summary>
     /// 获取服务器版本信息的回调函数
     /// </summary>
-    /// <param name="msgBytes"></param>
-    private void GetHotfixVersionMsgHandle(byte[] msgBytes)
+    /// <param name="resVersion">res的版本号</param>
+    /// <param name="luaVersion">lua的版本号</param>
+    private void GetHotfixVersionHandle(int resVersion, int luaVersion)
     {
-        GameHotFixVersion msg = NetworkManager.GetObjectOfBytes<GameHotFixVersion>(msgBytes);
-        if (msg != null)
-        {
-            FDebugger.Log("##服务器资源版本号：" + msg.resVersion);
-            FDebugger.Log("##服务器代码版本号：" + msg.luaVersion);
+        FDebugger.Log("服务器资源版本号：" + resVersion);
+        FDebugger.Log("服务器代码版本号：" + luaVersion);
 
-            SetProgressText("确认热更新资源");
-            SetProgressSliderValue(1);
-            string localVersionFilePath = AppConst.GetConfigFileFullPath();
-            if (File.Exists(localVersionFilePath))
+        SetProgressText("确认热更新资源");
+        SetProgressSliderValue(1);
+        string localVersionFilePath = AppConst.GetConfigFileFullPath();
+        if (File.Exists(localVersionFilePath))
+        {
+            //解析配置文件
+            ConfigData config = JsonMapper.ToObject<ConfigData>(File.ReadAllText(localVersionFilePath));
+            GameManager.Instance.Config = config;
+            if (config != null)
             {
-                //解析配置文件
-                ConfigData config = JsonMapper.ToObject<ConfigData>(File.ReadAllText(localVersionFilePath));
-                GameManager.Instance.Config = config;
-                if (config != null)
+                try
                 {
-                    try
+                    //开发模式下不检查版本更新
+                    if (!AppConst.DevMode)
                     {
                         int localResVersionNum = config.ResVersion;
                         int localLuaVersionNum = config.LuaVersion;
-                        serverResVersionNum = msg.resVersion;
-                        serverLuaVersionNum = msg.luaVersion;
+                        serverResVersionNum = resVersion;
+                        serverLuaVersionNum = luaVersion;
 
-                        if (msg.resVersion > localResVersionNum)
+                        if (resVersion > localResVersionNum || luaVersion > localLuaVersionNum)
                         {
                             //资源有更新，执行更新
+                            FDebugger.LogFormat("资源有更新，执行更新。服务器版本号：res[{0}] lua[{1}]，客户端版本号：res[{2}] lua[{3}]", resVersion, luaVersion, localResVersionNum, localLuaVersionNum);
                             SetProgressText("正在下载更新资源");
-                            DownloadManager.DownloadServerHotfixAsync(localResVersionNum, msg.resVersion, localLuaVersionNum, msg.luaVersion, DownloadDoneCallback, DownloadUnitDoneCallback, DownloadingCallback);
+                            DownloadManager.DownloadServerHotfixAsync(localResVersionNum, resVersion, localLuaVersionNum, luaVersion, DownloadDoneCallback, DownloadUnitDoneCallback, DownloadingCallback);
+                        
+                            //下载中的刷新提示文字的协程
+                            StartCoroutine(DownloadingCallbackIE());
                         }
                         else
                         {
                             //资源没有更新，加载本地ab包
+                            FDebugger.Log("资源没有更新，加载本地ab包");
                             SetProgressText("加载资源中");
-                            StartCoroutine(LoadLocalAssetBundle());
+
+                            LoadLocalAssetBundle();
                         }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        FDebugger.LogWarningFormat("版本信息解析失败，将重新下载所有资源。错误信息：{0}\n服务器资源版本号为：{1}，代码版本号为：{2}", e.Message, msg.resVersion, msg.luaVersion);
-                        //下载文件
-                        DownloadAll(msg);
+                        serverResVersionNum = resVersion;
+                        serverLuaVersionNum = luaVersion;
+
+                        LoadLocalAssetBundle();
                     }
                 }
-                else
+                catch (Exception e)
                 {
-                    //版本文件信息为空，这是一个异常。将重新下载所有资源
-                    FDebugger.LogWarning("版本文件内容为空");
-                    DownloadAll(msg);
+                    FDebugger.LogWarningFormat("版本信息解析失败，将重新下载所有资源。错误信息：{0}\n服务器资源版本号为：{1}，代码版本号为：{2}", e.Message, resVersion, luaVersion);
+                    if (!AppConst.DevMode)
+                    {
+                        //非开发模式才下载
+                        DownloadAll(resVersion, luaVersion);
+                    }
+                    else
+                    {
+                        //开发模式不下载资源
+                        FDebugger.LogWarning("开发模式下不下载更新资源");
+                    }
                 }
             }
             else
             {
-                //没有配置文件，是第一次启动游戏
-                DownloadAll(msg);
+                //版本文件信息为空，这是一个异常。将重新下载所有资源
+                FDebugger.LogWarning("版本文件内容为空");
+                DownloadAll(resVersion, luaVersion);
             }
         }
         else
         {
-            FDebugger.LogError("服务器返回的对象数组无法反序列化为GameHotFixVersion对象");
+            //没有配置文件，是第一次启动游戏
+            FDebugger.Log("第一次启动游戏，下载配置文件和资源文件");
+            DownloadAll(resVersion, luaVersion);
         }
     }
 
     /// <summary>
     /// 下载中回调
     /// </summary>
-    /// <param name="progress"></param>
-    private void DownloadingCallback(float progress)
+    /// <param name="progress">下载进度</param>
+    /// <param name="downloadedBytes">已经下载的数据大小</param>
+    private void DownloadingCallback(float progress, ulong downloadedBytes)
     {
         progressSlider.value = progress;
+
+        this.downloadedBytes = downloadedBytes;
+    }
+
+    /// <summary>
+    /// 下载时，每隔一秒调用一次，用于刷新下载进度以便更新提示文字
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator DownloadingCallbackIE()
+    {
+        yield return new WaitForSeconds(1);
+
+        float mb = this.downloadedBytes;
+        for (int i = 0; i < 2; i++)
+        {
+            mb /= 1024;
+        }
+        SetProgressText(string.Format("正在下载更新资源。已下载[{0}MB]", mb.ToString("f2")));
+
+        StartCoroutine(DownloadingCallbackIE());
     }
 
     /// <summary>
@@ -172,21 +279,27 @@ public class LoadingManager : MonoSingleton<LoadingManager>
     {
         SetProgressText("正在将资源保存到本地");
 
+        string resourcesFolderPath = AppConst.LocalResourceFolderPath;
+        if (!Directory.Exists(resourcesFolderPath))
+        {
+            Directory.CreateDirectory(resourcesFolderPath);
+        }
+
         string fileFullName;
         switch (fileType)
         {
             case HotfixFileType.Res:
-                fileFullName = Path.Combine(AppConst.GetLoaclResRootFolderPath(), fileName);
+                fileFullName = Path.Combine(resourcesFolderPath, fileName);
                 break;
             case HotfixFileType.Lua:
-                fileFullName = Path.Combine(AppConst.GetLocalLuaRootFolderPath(), fileName);
+                fileFullName = Path.Combine(resourcesFolderPath, fileName);
                 break;
             default:
                 FDebugger.LogWarningFormat("创建文件未能保存到指定位置。未知的文件类型：{0}。文件名：{1}", fileType.ToString(), fileName);
                 fileFullName = Path.Combine(Application.dataPath, fileName);
                 break;
         }
-        
+
         FileStream fileStream = File.Create(fileFullName);
         fileStream.Write(data, 0, data.Length);
         fileStream.Close();
@@ -199,56 +312,71 @@ public class LoadingManager : MonoSingleton<LoadingManager>
     /// </summary>
     private void DownloadDoneCallback()
     {
+        StopCoroutine(DownloadingCallbackIE());
+
         //更新本地配置文件版本号
         ConfigData.SetResVersion(serverResVersionNum, false);
         ConfigData.SetLuaVersion(serverLuaVersionNum, false);
         ConfigData.SaveConfig();
+        //全部下载完成，解压缩
+        UnzipResAndLuaFile();
 
         //TODO：检查资源完整性
 
-        StartCoroutine(LoadLocalAssetBundle());
+        //加载ab包
+        LoadLocalAssetBundle();
     }
 
     /// <summary>
     /// 版本检查完后，加载本地ab包并跳转到AppConst.SceneNameList[2]
     /// </summary>
-    private IEnumerator LoadLocalAssetBundle()
+    private void LoadLocalAssetBundle()
     {
-        SetProgressText("解压缩资源");
+        SetProgressText("加载游戏资源");
         SetProgressSliderValue(0);
 
-        string abRootPath;
-        if (AppConst.LoadLoaclAssetBundle)
+        //添加进入主场景后的事件
+        SceneManager.sceneLoaded += EnterGameSceneCallback;
+
+        //启动lua环境
+        SetProgressText("启动游戏环境");
+        GameManager.LuaState.Start();
+        //添加LuaLooper
+        LuaLooper loop = GameManager.Instance.gameObject.AddComponent<LuaLooper>();
+        loop.luaState = GameManager.LuaState;
+        GameManager.SetLuaLooper(loop);
+        //绑定wrap文件
+        LuaBinder.Bind(GameManager.LuaState);
+        //注册委托
+        DelegateFactory.Init();
+        //注册协程相关东西
+        LuaCoroutine.Register(GameManager.LuaState, GameManager.Instance);
+
+        SetProgressText("网络资源准备");
+        GameManager.Instance.OpenLuaProtobuf();
+
+        //执行Main.lua中的Awake方法
+        GameManager.LuaState.DoFile("AwakeMain.lua");
+        LuaFunction mainAwakeFun = GameManager.LuaState.GetFunction("AwakeMain.Awake");
+        if(mainAwakeFun != null)
         {
-            abRootPath = Application.dataPath + "/" + AppConst.GetLocalAssetBundlePath();
+            mainAwakeFun.Call();
         }
         else
         {
-            abRootPath = AppConst.GetLoaclResRootFolderPath();
-        }
-        //加载zip
-        List<AssetBundle> abList = new List<AssetBundle>();
-        ZIPFileUtil.UnzipABFile(Path.Combine(abRootPath, "Zip", "Res.zip"), out List<byte[]> contentList, "test");
-        foreach (byte[] content in contentList)
-        {
-            AssetBundleCreateRequest bundleLoadRequest = AssetBundle.LoadFromMemoryAsync(content);
-            SetProgressSliderValue(bundleLoadRequest.progress);
-            yield return bundleLoadRequest;
-            if(bundleLoadRequest.assetBundle != null)
-            {
-                abList.Add(bundleLoadRequest.assetBundle);
-            }
+            FDebugger.LogWarning("不存在Main.Awake()方法。该方法在Main方法之前调用，用于处理业务逻辑之前的部分事件");
         }
 
-        ResourcesManager.Instance.AddAssetBundle(abList);
-
-        SetProgressSliderValue(1);
-        //跳转到游戏主场景
-        SceneManager.LoadScene(AppConst.SceneNameList[2]);
-        //加载主场景进入逻辑
-        SceneManager.sceneLoaded += EnterGameSceneCallback;
+        SetProgressText("正在连接服务器");
+        FDebugger.Log("正在连接服务器");
+        NetworkManager.Instance.Connection();
     }
 
+    /// <summary>
+    /// 进入主场景后的事件
+    /// </summary>
+    /// <param name="gameScene"></param>
+    /// <param name="loadSceneMode"></param>
     private void EnterGameSceneCallback(Scene gameScene, LoadSceneMode loadSceneMode)
     {
         GameManager.Instance.EnterMainScene();
@@ -257,7 +385,9 @@ public class LoadingManager : MonoSingleton<LoadingManager>
     /// <summary>
     /// 下载全部资源
     /// </summary>
-    private void DownloadAll(GameHotFixVersion msg)
+    /// <param name="resVersion"></param>
+    /// <param name="luaVersion"></param>
+    private void DownloadAll(int resVersion, int luaVersion)
     {
         //下载一个默认配置文件
         SetProgressText("正在下载更新资源");
@@ -265,21 +395,83 @@ public class LoadingManager : MonoSingleton<LoadingManager>
             AppConst.ServerConfigURL,
             (data) =>
             {
-                //保存配置文件
-                FileStream configFile = File.Create(AppConst.GetConfigFileFullPath());
-                configFile.Write(data, 0, data.Length);
-                configFile.Close();
+                //配置的数据
                 string configJsonString = Encoding.UTF8.GetString(data);
                 ConfigData config = JsonMapper.ToObject<ConfigData>(configJsonString);
                 GameManager.Instance.Config = config;
 
+                serverResVersionNum = config.ResVersion;
+                serverLuaVersionNum = config.LuaVersion;
+
                 //开始下载更新资源
-                //TODO:加载界面显示下载资源的大小 总大小 和 当前网速
-                DownloadManager.DownloadServerHotfixAsync(0, msg.resVersion, 0, msg.luaVersion, DownloadDoneCallback, DownloadUnitDoneCallback, DownloadingCallback);
+                //TODO:加载界面显示下载资源的 当前网速
+                DownloadManager.DownloadServerHotfixAsync(0, resVersion, 0, luaVersion, DownloadDoneCallback, DownloadUnitDoneCallback, DownloadingCallback);
+
+                //下载中的刷新提示文字的协程
+                StartCoroutine(DownloadingCallbackIE());
             },
-            (progress) =>
+            (progress, downloadedBytes) =>
             {
                 SetProgressSliderValue(progress);
             });
+    }
+
+    /// <summary>
+    /// 解压缩res和lua的压缩文件
+    /// </summary>
+    private void UnzipResAndLuaFile()
+    {
+        //解压res部分
+        if (!AppConst.LoadLoaclAssetBundle)
+        {
+            for (int i = GameManager.Instance.Config.ResVersion; i <= serverResVersionNum; i++)
+            {
+                string zipPath;
+#if UNITY_EDITOR || UNITY_STANDALONE
+                zipPath = Path.Combine(AppConst.LocalResourceFolderPath, AppConst.ResString + i.ToString() + ".zip");
+#elif UNITY_ANDROID
+                //zipPath = new Uri(Path.Combine(AppConst.LocalResourceFolderPath, AppConst.ResString + i.ToString() + ".zip")).AbsoluteUri;
+                zipPath = Path.Combine(AppConst.LocalResourceFolderPath, AppConst.ResString + i.ToString() + ".zip");
+#elif UNITY_IOS
+                zipPath = Path.Combine(resABRootPath, AppConst.ResString + i.ToString() + ".zip");
+#else
+                zipPath = Path.Combine(resABRootPath, AppConst.ResString + i.ToString() + ".zip");
+#endif
+
+                FDebugger.Log("zipPath:" + zipPath);
+                if (!Directory.Exists(AppConst.LocalResRootFolderPath))
+                {
+                    Directory.CreateDirectory(AppConst.LocalResRootFolderPath);
+                }
+                ZIPFileUtil.UnzipFile(zipPath, AppConst.LocalResRootFolderPath, AppConst.ZipPassword);
+            }
+        }
+        //解压lua代码部分
+        if (!AppConst.LoadLoaclAssetBundle)
+        {
+            //将lua代码的zip包解压
+            for (int i = GameManager.Instance.Config.LuaVersion; i <= serverLuaVersionNum; i++)
+            {
+                string luaPath = Path.Combine(AppConst.LocalResourceFolderPath, AppConst.LuaString + i.ToString() + ".zip");
+                FDebugger.Log("luaPath:" + luaPath);
+
+                if (!Directory.Exists(AppConst.LocalLuaRootFolderPath))
+                {
+                    Directory.CreateDirectory(AppConst.LocalLuaRootFolderPath);
+                }
+                ZIPFileUtil.UnzipFile(luaPath, AppConst.LocalLuaRootFolderPath, AppConst.ZipPassword);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 获取加载中文字提示的数据对象
+    /// </summary>
+    public class GetALoadingTipData
+    {
+        /// <summary>
+        /// 提示文字具体内容
+        /// </summary>
+        public string Content { get; set; }
     }
 }

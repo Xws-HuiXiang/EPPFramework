@@ -25,6 +25,7 @@ using System.Collections.Generic;
 
 namespace LuaInterface
 {
+    [Serializable]
     public class LuaTable : LuaBaseRef
     {        
         public LuaTable(int reference, LuaState state)

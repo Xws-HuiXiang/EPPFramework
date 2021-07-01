@@ -84,8 +84,41 @@ public class PanelManager
     }
 
     private static Transform mainCanvasTrans;
+    private static Transform upperLayerCanvasTrans;
 
     private static List<OpenPanelStruct> panelList = new List<OpenPanelStruct>();
+
+    public static Transform MainCanvasTrans
+    {
+        get
+        {
+            return mainCanvasTrans;
+        }
+    }
+
+    public static Transform UpperLayerCanvasTrans
+    {
+        get
+        {
+            return upperLayerCanvasTrans;
+        }
+    }
+
+    public static RectTransform MainCanvasRectTrans
+    {
+        get
+        {
+            return mainCanvasTrans.GetComponent<RectTransform>();
+        }
+    }
+
+    public static RectTransform UpperCanvasRectTrans
+    {
+        get
+        {
+            return upperLayerCanvasTrans.GetComponent<RectTransform>();
+        }
+    }
 
     /// <summary>
     /// 初始化这个管理器
@@ -101,6 +134,17 @@ public class PanelManager
         if(mainCanvasTrans == null)
         {
             FDebugger.LogError("场景中没有Canvas，请创建一个Canvas");
+        }
+
+        upperLayerCanvasTrans = GameObject.Find("UpperLayerCanvas").transform;
+        if(upperLayerCanvasTrans == null)
+        {
+            Canvas mainCanvas = GameObject.FindObjectOfType<Canvas>();
+            upperLayerCanvasTrans = mainCanvas.transform;
+        }
+        if(upperLayerCanvasTrans == null)
+        {
+            FDebugger.LogWarning("场景中没有UpperLayerCanvas");
         }
     }
 
@@ -138,7 +182,6 @@ public class PanelManager
             {
                 prefabName = prefabName,
                 autoDestroy = autoDestroy,
-                //panelGameObject = panelGameObject,
                 awakeAction = awake,
                 startAction = start,
                 runAwake = true,
@@ -165,7 +208,6 @@ public class PanelManager
         panelGameObject.transform.SetSiblingIndex(mainCanvasTrans.childCount - 1);
         panelGameObject.name = prefabName;
         panelGameObject.SetActive(true);
-        //openPanelStruct.Init();
 
         return openPanelStruct;
     }
@@ -181,7 +223,6 @@ public class PanelManager
         OpenPanelStruct temp = new OpenPanelStruct();
         foreach (OpenPanelStruct item in panelList)
         {
-            //if (item.prefabName == ctrlName)
             if (string.Equals(item.prefabName, panelName, StringComparison.OrdinalIgnoreCase))
             {
                 //当关闭时调用Close方法
@@ -245,5 +286,159 @@ public class PanelManager
 
         FDebugger.LogWarning("当前没有打开任何面板，无法获取最后一个面板信息");
         return null;
+    }
+
+    /// <summary>
+    /// 在主画布中检测有没有打开某个面板
+    /// </summary>
+    /// <param name="ctrlName">面板对应的ctrl名称</param>
+    /// <param name="includeDisableState">包括隐藏状态的物体</param>
+    /// <returns></returns>
+    public static bool CheckPanelIsOpenInMainCanvas(string ctrlName, bool includeDisableState)
+    {
+        if(MainCanvasTrans == null)
+        {
+            if (MainCanvasTrans == null)
+            {
+                FDebugger.LogError("场景中没有Canvas，请创建一个Canvas");
+            }
+
+            return false;
+        }
+
+        string panelName = PanelNameUtil.TryGetPanelName(ctrlName);
+        Transform panel = MainCanvasTrans.Find(panelName);
+
+        if(panel == null)
+        {
+            return false;
+        }
+        else
+        {
+            if (panel.gameObject.activeSelf)
+            {
+                return true;
+            }
+
+            //面板处于隐藏状态
+            if (includeDisableState)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 在上层画布中检测有没有打开某个面板
+    /// </summary>
+    /// <param name="ctrlName">面板对应的ctrl名称</param>
+    /// <param name="includeDisableState">包括隐藏状态的物体</param>
+    /// <returns></returns>
+    public static bool CheckPanelIsOpenInUpperLayerCanvas(string ctrlName, bool includeDisableState)
+    {
+        if (UpperLayerCanvasTrans == null)
+        {
+            if (UpperLayerCanvasTrans == null)
+            {
+                FDebugger.LogWarning("场景中没有UpperLayerCanvas");
+            }
+
+            return false;
+        }
+
+        string panelName = PanelNameUtil.TryGetPanelName(ctrlName);
+        Transform panel = UpperLayerCanvasTrans.Find(panelName);
+        if (panel == null)
+        {
+            return false;
+        }
+        else
+        {
+            if (panel.gameObject.activeSelf)
+            {
+                return true;
+            }
+
+            //面板处于隐藏状态
+            if (includeDisableState)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 获取MainCanvas下的所有面板
+    /// </summary>
+    /// <returns></returns>
+    public static List<Transform> GetPanelListFromMainCanvas()
+    {
+        List<Transform> tempList = new List<Transform>();
+        if(MainCanvasTrans != null)
+        {
+            for(int i = 0; i < MainCanvasTrans.childCount; i++)
+            {
+                tempList.Add(MainCanvasTrans.GetChild(i));
+            }
+        }
+
+        return tempList;
+    }
+
+    /// <summary>
+    /// 获取UpperCanvas下的所有面板
+    /// </summary>
+    /// <returns></returns>
+    public static List<Transform> GetPanelListFromUpperCanvas()
+    {
+        List<Transform> tempList = new List<Transform>();
+        if (UpperLayerCanvasTrans != null)
+        {
+            for (int i = 0; i < UpperLayerCanvasTrans.childCount; i++)
+            {
+                tempList.Add(UpperLayerCanvasTrans.GetChild(i));
+            }
+        }
+
+        return tempList;
+    }
+
+    /// <summary>
+    /// 关闭所有面板
+    /// </summary>
+    public static void CloseAllPanel()
+    {
+        CloseAllMainCanvasPanel();
+        CloseAllUpperCanvasPanel();
+    }
+
+    /// <summary>
+    /// 关闭所有MainCanvas下的面板
+    /// </summary>
+    public static void CloseAllMainCanvasPanel()
+    {
+        List<Transform> panelList = GetPanelListFromMainCanvas();
+        foreach(Transform panelTrans in panelList)
+        {
+            string ctrlName = PanelNameUtil.TryGetCtrlName(panelTrans.name);
+            ClosePanel(ctrlName);
+        }
+    }
+
+    /// <summary>
+    /// 关闭所有UpperCanvas下的面板
+    /// </summary>
+    public static void CloseAllUpperCanvasPanel()
+    {
+        List<Transform> panelList = GetPanelListFromUpperCanvas();
+        foreach (Transform panelTrans in panelList)
+        {
+            string ctrlName = PanelNameUtil.TryGetCtrlName(panelTrans.name);
+            ClosePanel(ctrlName);
+        }
     }
 }

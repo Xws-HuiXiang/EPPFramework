@@ -1,6 +1,8 @@
-﻿using System;
+﻿using LitJson;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -19,7 +21,7 @@ public class DownloadManager : MonoSingleton<DownloadManager>
         /// <summary>
         /// 下载中回调
         /// </summary>
-        public Action<float> downloadingCallback;
+        public Action<float, ulong> downloadingCallback;
     }
 
     /// <summary>
@@ -29,7 +31,7 @@ public class DownloadManager : MonoSingleton<DownloadManager>
     /// <summary>
     /// 资源文件正在下载的回调函数
     /// </summary>
-    private static Action<float> nowHotfixDownloadingAction = null;
+    private static Action<float, ulong> nowHotfixDownloadingAction = null;
 
     /// <summary>
     /// 普通文件目前正在下载的项。有下载项时有值，否则为null
@@ -38,7 +40,7 @@ public class DownloadManager : MonoSingleton<DownloadManager>
     /// <summary>
     /// 普通文件正在下载时的回调函数
     /// </summary>
-    private static Action<float> nowDownloadingAction = null;
+    private static Action<float, ulong> nowDownloadingAction = null;
     /// <summary>
     /// 下载队列
     /// </summary>
@@ -52,7 +54,7 @@ public class DownloadManager : MonoSingleton<DownloadManager>
     {
         if(nowHotfixDownloadingAction != null && nowHotfixUnityWebRequest != null)
         {
-            nowHotfixDownloadingAction.Invoke(nowHotfixUnityWebRequest.downloadProgress);
+            nowHotfixDownloadingAction.Invoke(nowHotfixUnityWebRequest.downloadProgress, nowHotfixUnityWebRequest.downloadedBytes);
         }
 
         //下载队列不为空且没有正在下载东西
@@ -61,7 +63,7 @@ public class DownloadManager : MonoSingleton<DownloadManager>
             DownloadStruct download = downloadingQueue.Dequeue();
             if(nowUnityWebRequest != null && nowDownloadingAction != null)
             {
-                nowDownloadingAction.Invoke(nowUnityWebRequest.downloadProgress);
+                nowDownloadingAction.Invoke(nowUnityWebRequest.downloadProgress, nowUnityWebRequest.downloadedBytes);
             }
             
             StartCoroutine(DownloadIE(download));
@@ -71,7 +73,7 @@ public class DownloadManager : MonoSingleton<DownloadManager>
     }
 
     /// <summary>
-    /// 异步下载服务器热更新资源
+    /// 异步下载服务器热更新资源。同时会更新一次pb文件
     /// </summary>
     /// <param name="localResVersion">本地res版本</param>
     /// <param name="serverResVersion">服务器res版本</param>
@@ -80,7 +82,7 @@ public class DownloadManager : MonoSingleton<DownloadManager>
     /// <param name="doneCallback">全部下载完成时回调</param>
     /// <param name="unitDoneCallback">单个zip下载完成回调</param>
     /// <param name="downloadingCallback">下载中回调</param>
-    public static void DownloadServerHotfixAsync(int localResVersion, int serverResVersion, int localLuaVersion, int serverLuaVersion, Action doneCallback, Action<HotfixFileType, string, byte[]> unitDoneCallback = null, Action<float> downloadingCallback = null)
+    public static void DownloadServerHotfixAsync(int localResVersion, int serverResVersion, int localLuaVersion, int serverLuaVersion, Action doneCallback, Action<HotfixFileType, string, byte[]> unitDoneCallback = null, Action<float, ulong> downloadingCallback = null)
     {
         DownloadManager.Instance.StartCoroutine(DownloadServerHotfixIE(localResVersion, serverResVersion, localLuaVersion, serverLuaVersion, doneCallback, unitDoneCallback, downloadingCallback));
     }
@@ -96,13 +98,14 @@ public class DownloadManager : MonoSingleton<DownloadManager>
     /// <param name="unitDoneCallback">单个zip下载完成回调</param>
     /// <param name="downloadingCallback">下载中回调</param>
     /// <returns></returns>
-    private static IEnumerator DownloadServerHotfixIE(int localResVersion, int serverResVersion, int localLuaVersion, int serverLuaVersion, Action doneCallback, Action<HotfixFileType, string, byte[]> unitDoneCallback = null, Action<float> downloadingCallback = null)
+    private static IEnumerator DownloadServerHotfixIE(int localResVersion, int serverResVersion, int localLuaVersion, int serverLuaVersion, Action doneCallback, Action<HotfixFileType, string, byte[]> unitDoneCallback = null, Action<float, ulong> downloadingCallback = null)
     {
         //res
         for (int versionNumber = localResVersion + 1; versionNumber <= serverResVersion; versionNumber++)
         {
-            string fileName = versionNumber + ".zip";
+            string fileName = AppConst.ResString + versionNumber + ".zip";
             string url = AppConst.ServerResURL + fileName;
+            FDebugger.Log("下载热更资源res路径：" + url);
             nowHotfixUnityWebRequest = UnityWebRequest.Get(url);
             nowHotfixDownloadingAction = downloadingCallback;
 
@@ -128,8 +131,9 @@ public class DownloadManager : MonoSingleton<DownloadManager>
         //lua
         for (int versionNumber = localLuaVersion + 1; versionNumber <= serverLuaVersion; versionNumber++)
         {
-            string fileName = versionNumber + ".zip";
+            string fileName = AppConst.LuaString + versionNumber + ".zip";
             string url = AppConst.ServerLuaURL + fileName;
+            FDebugger.Log("下载热更资源lua路径：" + url);
             nowHotfixUnityWebRequest = UnityWebRequest.Get(url);
             nowHotfixDownloadingAction = downloadingCallback;
 
@@ -152,6 +156,44 @@ public class DownloadManager : MonoSingleton<DownloadManager>
             nowHotfixDownloadingAction = null;
         }
 
+        //pb文件。只要有更新就更新一次
+        UnityWebRequest pbFileListRequest = UnityWebRequest.Get(AppConst.ServerPbFileListURL);
+        
+        yield return pbFileListRequest.SendWebRequest();
+
+        if (pbFileListRequest.isNetworkError || pbFileListRequest.isHttpError)
+        {
+            FDebugger.LogErrorFormat("下载失败。下载链接：[{0}]。错误信息：\n{1}", AppConst.ServerPbFileListURL, pbFileListRequest.error);
+
+            yield break;
+        }
+
+        //根据url下载所有pb文件
+        //检查路径是否存在
+        if (!Directory.Exists(AppConst.ClientMsgPbURL))
+        {
+            Directory.CreateDirectory(AppConst.ClientMsgPbURL);
+        }
+        PbFileListData pbFileListData = JsonMapper.ToObject<PbFileListData>(pbFileListRequest.downloadHandler.text);
+        foreach(string url in pbFileListData.URLList)
+        {
+            UnityWebRequest pbFileRequest = UnityWebRequest.Get(url);
+
+            yield return pbFileRequest.SendWebRequest();
+
+            if (pbFileRequest.isNetworkError || pbFileRequest.isHttpError)
+            {
+                FDebugger.LogErrorFormat("下载失败。下载链接：[{0}]。错误信息：\n{1}", url, pbFileRequest.error);
+
+                yield break;
+            }
+
+            string fileFullPath = AppConst.GetPbFileFullPathByURL(url);
+            FileStream fs = File.Create(fileFullPath);
+            fs.Write(pbFileRequest.downloadHandler.data, 0, pbFileRequest.downloadHandler.data.Length);
+            fs.Close();
+        }
+
         //全部下载完成
         if (doneCallback != null)
         {
@@ -165,7 +207,7 @@ public class DownloadManager : MonoSingleton<DownloadManager>
     /// <param name="url">下载的url</param>
     /// <param name="doneCallback">下载完成回调</param>
     /// <param name="downloadingCallback">下载中回调</param>
-    public static void DownloadFile(string url, Action<byte[]> doneCallback, Action<float> downloadingCallback)
+    public static void DownloadFile(string url, Action<byte[]> doneCallback, Action<float, ulong> downloadingCallback)
     {
         DownloadStruct downloadStruct = new DownloadStruct();
         downloadStruct.url = url;

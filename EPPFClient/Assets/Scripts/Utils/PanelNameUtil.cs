@@ -23,7 +23,7 @@ public static class PanelNameUtil
         string res = panelName;
         if (panelName.EndsWith("Panel", StringComparison.OrdinalIgnoreCase))
         {
-            res = panelName.Substring(0, panelName.Length - 4);
+            res = panelName.Substring(0, panelName.Length - 5);
             res += "Ctrl";
         }
 
@@ -31,7 +31,7 @@ public static class PanelNameUtil
     }
 
     /// <summary>
-    /// 尝试获取对应的panel名称。该方法会替换参数最后的‘ctrl’字符串为panel，如果字符串以ctrl结尾
+    /// 尝试获取对应的panel名称。如果字符串以ctrl结尾，该方法会替换参数最后的‘ctrl’字符串为panel
     /// </summary>
     /// <param name="ctrlName"></param>
     /// <returns></returns>

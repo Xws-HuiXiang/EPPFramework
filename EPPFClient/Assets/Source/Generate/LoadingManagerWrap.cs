@@ -8,6 +8,7 @@ public class LoadingManagerWrap
 	{
 		L.BeginClass(typeof(LoadingManager), typeof(MonoSingleton<LoadingManager>));
 		L.RegFunction("SetProgressText", SetProgressText);
+		L.RegFunction("SetProgressTextAsync", SetProgressTextAsync);
 		L.RegFunction("SetProgressSliderValue", SetProgressSliderValue);
 		L.RegFunction("__eq", op_Equality);
 		L.RegFunction("__tostring", ToLua.op_ToString);
@@ -23,6 +24,23 @@ public class LoadingManagerWrap
 			LoadingManager obj = (LoadingManager)ToLua.CheckObject<LoadingManager>(L, 1);
 			string arg0 = ToLua.CheckString(L, 2);
 			obj.SetProgressText(arg0);
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int SetProgressTextAsync(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			LoadingManager obj = (LoadingManager)ToLua.CheckObject<LoadingManager>(L, 1);
+			string arg0 = ToLua.CheckString(L, 2);
+			obj.SetProgressTextAsync(arg0);
 			return 0;
 		}
 		catch (Exception e)

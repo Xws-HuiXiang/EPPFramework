@@ -26,8 +26,10 @@ using UnityEngine;
 
 namespace LuaInterface
 {
+    [Serializable]
     public class ObjectTranslator
     {        
+        [Serializable]
         private class DelayGC
         {
             public DelayGC(int id, UnityEngine.Object obj, float time)
@@ -42,6 +44,7 @@ namespace LuaInterface
             public float time;
         }
 
+        [Serializable]
         private class CompareObject : IEqualityComparer<object>
         {
             public new bool Equals(object x, object y)

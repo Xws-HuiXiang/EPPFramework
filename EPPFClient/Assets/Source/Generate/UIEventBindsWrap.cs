@@ -10,6 +10,10 @@ public class UIEventBindsWrap
 		L.RegFunction("ButtonAddOnClick", ButtonAddOnClick);
 		L.RegFunction("ButtonRemoveOnClick", ButtonRemoveOnClick);
 		L.RegFunction("ToggleAddValueChange", ToggleAddValueChange);
+		L.RegFunction("ToggleRemoveValueChange", ToggleRemoveValueChange);
+		L.RegFunction("EventTriggerAddEvent", EventTriggerAddEvent);
+		L.RegFunction("SliderAddValueChange", SliderAddValueChange);
+		L.RegFunction("SliderRemoveValueChange", SliderRemoveValueChange);
 		L.RegFunction("New", _CreateUIEventBinds);
 		L.RegFunction("__tostring", ToLua.op_ToString);
 		L.EndClass();
@@ -84,6 +88,79 @@ public class UIEventBindsWrap
 			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
 			UnityEngine.Events.UnityAction<bool> arg1 = (UnityEngine.Events.UnityAction<bool>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<bool>>(L, 2);
 			bool o = UIEventBinds.ToggleAddValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int ToggleRemoveValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<bool> arg1 = (UnityEngine.Events.UnityAction<bool>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<bool>>(L, 2);
+			bool o = UIEventBinds.ToggleRemoveValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int EventTriggerAddEvent(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 3);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			int arg1 = (int)LuaDLL.luaL_checknumber(L, 2);
+			UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData> arg2 = (UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData>>(L, 3);
+			bool o = UIEventBinds.EventTriggerAddEvent(arg0, arg1, arg2);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int SliderAddValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<float> arg1 = (UnityEngine.Events.UnityAction<float>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<float>>(L, 2);
+			bool o = UIEventBinds.SliderAddValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int SliderRemoveValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<float> arg1 = (UnityEngine.Events.UnityAction<float>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<float>>(L, 2);
+			bool o = UIEventBinds.SliderRemoveValueChange(arg0, arg1);
 			LuaDLL.lua_pushboolean(L, o);
 			return 1;
 		}

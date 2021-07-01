@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#define USING_DOTWEENING
+
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 using LuaInterface;
@@ -10,6 +12,7 @@ using System.Reflection;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.Networking;
+using UNOServer.Common;
 
 public static class CustomSettings
 {
@@ -45,10 +48,14 @@ public static class CustomSettings
         _DT(typeof(UnityEngine.Events.UnityAction<int>)),
         _DT(typeof(UnityEngine.Events.UnityAction<Vector2>)),
         _DT(typeof(UnityEngine.Events.UnityAction<string>)),
+        _DT(typeof(UnityEngine.Events.UnityAction<BaseEventData>)),
         _DT(typeof(System.Predicate<int>)),
         _DT(typeof(System.Action<int>)),
         _DT(typeof(System.Comparison<int>)),
-        _DT(typeof(System.Func<int, int>))
+        _DT(typeof(System.Func<int, int>)),
+
+        //DOTween
+        _DT(typeof(DG.Tweening.TweenCallback)),
     };
 
     //在这里添加你要导出注册到lua的类型列表
@@ -79,6 +86,7 @@ public static class CustomSettings
         _GT(typeof(DG.Tweening.PathMode)),
         _GT(typeof(DG.Tweening.PathType)),
         _GT(typeof(DG.Tweening.RotateMode)),
+        _GT(typeof(DG.Tweening.Ease)),
         _GT(typeof(Component)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),
         _GT(typeof(Transform)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),
         _GT(typeof(Light)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),
@@ -87,7 +95,13 @@ public static class CustomSettings
         _GT(typeof(Camera)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),
         _GT(typeof(AudioSource)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),
         //_GT(typeof(LineRenderer)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),
-        //_GT(typeof(TrailRenderer)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),    
+        //_GT(typeof(TrailRenderer)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),
+        _GT(typeof(RectTransform)).AddExtendType(typeof(DG.Tweening.DOTweenModuleUI)),
+        _GT(typeof(DG.Tweening.Core.ABSSequentiable)),
+        _GT(typeof(DG.Tweening.Core.TweenerCore<Vector3, Vector3, DG.Tweening.Plugins.Options.VectorOptions>)),
+        _GT(typeof(DG.Tweening.Core.TweenerCore<Vector2, Vector2, DG.Tweening.Plugins.Options.VectorOptions>)),
+        _GT(typeof(DG.Tweening.Core.TweenerCore<Color, Color, DG.Tweening.Plugins.Options.ColorOptions>)),
+        _GT(typeof(DG.Tweening.Core.TweenerCore<float,float,DG.Tweening.Plugins.Options.FloatOptions>)),
 #else
                                          
         _GT(typeof(Component)),
@@ -110,7 +124,7 @@ public static class CustomSettings
         _GT(typeof(Collider)),
         _GT(typeof(Time)),        
         _GT(typeof(Texture)),
-        _GT(typeof(Texture2D)),
+        _GT(typeof(Texture2D)).AddExtendType(typeof(ImageConversion)),
         _GT(typeof(Shader)),        
         _GT(typeof(Renderer)),
         //Unity5版本才生成WWW类
@@ -157,6 +171,7 @@ public static class CustomSettings
         _GT(typeof(QueueMode)),  
         _GT(typeof(PlayMode)),
         _GT(typeof(WrapMode)),
+        //_GT(typeof(LuaByteBuffer)),
 
         _GT(typeof(QualitySettings)),
         _GT(typeof(RenderSettings)),                                                   
@@ -165,9 +180,11 @@ public static class CustomSettings
         _GT(typeof(Resources)),     
         _GT(typeof(LuaProfiler)),
         _GT(typeof(AudioBehaviour)),
+        _GT(typeof(Rect)),
+
+        _GT(typeof(UnityEngine.Random)),
 
         //UnityEngine.UI
-        _GT(typeof(RectTransform)),
         _GT(typeof(Text)),
         _GT(typeof(Image)),
         _GT(typeof(Button)),
@@ -184,14 +201,36 @@ public static class CustomSettings
         _GT(typeof(GraphicRaycaster)),
         _GT(typeof(HorizontalLayoutGroup)),
         _GT(typeof(VerticalLayoutGroup)),
+        _GT(typeof(HorizontalOrVerticalLayoutGroup)),
+        _GT(typeof(LayoutGroup)),
         _GT(typeof(GridLayoutGroup)),
         _GT(typeof(Mask)),
         _GT(typeof(ContentSizeFitter)),
         _GT(typeof(LayoutElement)),
+        _GT(typeof(RectTransform.Edge)),
+        //_GT(typeof(Quaternion)),
+        _GT(typeof(Sprite)),
+        _GT(typeof(CanvasGroup)).AddExtendType(typeof(DG.Tweening.DOTweenModuleUI)),
+        _GT(typeof(CanvasRenderer)),
+        _GT(typeof(LayoutRebuilder)),
+        _GT(typeof(MaskableGraphic)),
+        _GT(typeof(Graphic)),
+        _GT(typeof(Selectable)),
+        _GT(typeof(UIBehaviour)),
+        _GT(typeof(RectTransformUtility)),
 
         //UnityEnigne.Events
         _GT(typeof(EventTrigger)),
         _GT(typeof(UnityEvent)),
+        _GT(typeof(PointerEventData)),
+        _GT(typeof(UnityEngine.EventSystems.EventTriggerType)),
+        _GT(typeof(BaseEventData)),
+        _GT(typeof(EventTrigger.Entry)),
+        _GT(typeof(BaseRaycaster)),
+        _GT(typeof(UnityEventBase)),
+        _GT(typeof(AbstractEventData)),
+
+        _GT(typeof(GUIUtility)),
 
         //添加自定义的类
         //Managers
@@ -201,14 +240,50 @@ public static class CustomSettings
         _GT(typeof(GameManager)),
         _GT(typeof(LoadingManager)),
         _GT(typeof(PanelManager.OpenPanelStruct)),
+        _GT(typeof(NetworkManager)),
+        _GT(typeof(AndroidManager)),
+        _GT(typeof(AudioManager)),
+        _GT(typeof(TextureManager)),
+        _GT(typeof(HttpRequestManager)),
+        _GT(typeof(MonoSingleton<ResourcesManager>)),
+        _GT(typeof(MonoSingleton<DownloadManager>)),
+        _GT(typeof(MonoSingleton<GameManager>)),
+        _GT(typeof(MonoSingleton<LoadingManager>)),
+        _GT(typeof(MonoSingleton<NetworkManager>)),
+        _GT(typeof(MonoSingleton<AudioManager>)),
+        _GT(typeof(Singleton<AndroidManager>)),
+        _GT(typeof(Singleton<TextureManager>)),
         //Common
-        _GT(typeof(UITextFontFix)),
+        _GT(typeof(ConfigData)),
+        _GT(typeof(AppConst)),
+        _GT(typeof(Ciphertext.AES)),
+        _GT(typeof(Ciphertext.DHExchange)),
         //Utils
         _GT(typeof(FDebugger)),
         _GT(typeof(UIEventBinds)),
+        _GT(typeof(Utils)),
+        _GT(typeof(PanelNameUtil)),
+        _GT(typeof(RegexUtil)),
+        //Data
+        _GT(typeof(HotfixVersionData)),
+        _GT(typeof(PbFileListData)),
+
+        //CommonProtocol
+        _GT(typeof(MessageBuffer)),
 
         //EPPTools相关类
         _GT(typeof(EPPTools.SimpleStorage.Storage)),
+
+        _GT(typeof(System.Tuple<int, int, int>)),
+
+        //LitJson
+        _GT(typeof(LitJson.JsonMapper)),
+        _GT(typeof(LitJson.JsonData)).AddExtendType(typeof(JsonDataExtension)),
+
+        //UnityAds广告
+        _GT(typeof(UnityAds)),
+        _GT(typeof(UnityEngine.Advertisements.Advertisement)),
+        _GT(typeof(UnityEngine.Advertisements.ShowResult)),
     };
 
     public static List<Type> dynamicList = new List<Type>()

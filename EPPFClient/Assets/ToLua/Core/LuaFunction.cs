@@ -25,8 +25,10 @@ using UnityEngine;
 
 namespace LuaInterface
 {
+    [Serializable]
     public class LuaFunction : LuaBaseRef
     {
+        [Serializable]
         protected struct FuncData
         {
             public int oldTop;

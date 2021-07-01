@@ -28,7 +28,7 @@ public class CopyFile
                     //去掉meta文件
                     if (!fileInfos[i].Name.EndsWith(".meta"))
                     {
-                        string destFileName = Path.Combine(AppConst.GetLoaclResRootFolderPath(), fileInfos[i].Name);
+                        string destFileName = Path.Combine(AppConst.LocalResRootFolderPath, fileInfos[i].Name);
                         File.Copy(fileInfos[i].FullName, destFileName, true);
 
                         fileCount++;

@@ -12,8 +12,19 @@ public class PanelManagerWrap
 		L.RegFunction("ClosePanel", ClosePanel);
 		L.RegFunction("CloseLastPanel", CloseLastPanel);
 		L.RegFunction("GetLastPanelStruct", GetLastPanelStruct);
+		L.RegFunction("CheckPanelIsOpenInMainCanvas", CheckPanelIsOpenInMainCanvas);
+		L.RegFunction("CheckPanelIsOpenInUpperLayerCanvas", CheckPanelIsOpenInUpperLayerCanvas);
+		L.RegFunction("GetPanelListFromMainCanvas", GetPanelListFromMainCanvas);
+		L.RegFunction("GetPanelListFromUpperCanvas", GetPanelListFromUpperCanvas);
+		L.RegFunction("CloseAllPanel", CloseAllPanel);
+		L.RegFunction("CloseAllMainCanvasPanel", CloseAllMainCanvasPanel);
+		L.RegFunction("CloseAllUpperCanvasPanel", CloseAllUpperCanvasPanel);
 		L.RegFunction("New", _CreatePanelManager);
 		L.RegFunction("__tostring", ToLua.op_ToString);
+		L.RegVar("MainCanvasTrans", get_MainCanvasTrans, null);
+		L.RegVar("UpperLayerCanvasTrans", get_UpperLayerCanvasTrans, null);
+		L.RegVar("MainCanvasRectTrans", get_MainCanvasRectTrans, null);
+		L.RegVar("UpperCanvasRectTrans", get_UpperCanvasRectTrans, null);
 		L.EndClass();
 	}
 
@@ -118,6 +129,175 @@ public class PanelManagerWrap
 			ToLua.CheckArgsCount(L, 0);
 			PanelManager.OpenPanelStruct o = PanelManager.GetLastPanelStruct();
 			ToLua.PushObject(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int CheckPanelIsOpenInMainCanvas(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			string arg0 = ToLua.CheckString(L, 1);
+			bool arg1 = LuaDLL.luaL_checkboolean(L, 2);
+			bool o = PanelManager.CheckPanelIsOpenInMainCanvas(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int CheckPanelIsOpenInUpperLayerCanvas(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			string arg0 = ToLua.CheckString(L, 1);
+			bool arg1 = LuaDLL.luaL_checkboolean(L, 2);
+			bool o = PanelManager.CheckPanelIsOpenInUpperLayerCanvas(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int GetPanelListFromMainCanvas(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 0);
+			System.Collections.Generic.List<UnityEngine.Transform> o = PanelManager.GetPanelListFromMainCanvas();
+			ToLua.PushSealed(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int GetPanelListFromUpperCanvas(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 0);
+			System.Collections.Generic.List<UnityEngine.Transform> o = PanelManager.GetPanelListFromUpperCanvas();
+			ToLua.PushSealed(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int CloseAllPanel(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 0);
+			PanelManager.CloseAllPanel();
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int CloseAllMainCanvasPanel(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 0);
+			PanelManager.CloseAllMainCanvasPanel();
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int CloseAllUpperCanvasPanel(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 0);
+			PanelManager.CloseAllUpperCanvasPanel();
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_MainCanvasTrans(IntPtr L)
+	{
+		try
+		{
+			ToLua.Push(L, PanelManager.MainCanvasTrans);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_UpperLayerCanvasTrans(IntPtr L)
+	{
+		try
+		{
+			ToLua.Push(L, PanelManager.UpperLayerCanvasTrans);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_MainCanvasRectTrans(IntPtr L)
+	{
+		try
+		{
+			ToLua.PushSealed(L, PanelManager.MainCanvasRectTrans);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_UpperCanvasRectTrans(IntPtr L)
+	{
+		try
+		{
+			ToLua.PushSealed(L, PanelManager.UpperCanvasRectTrans);
 			return 1;
 		}
 		catch (Exception e)

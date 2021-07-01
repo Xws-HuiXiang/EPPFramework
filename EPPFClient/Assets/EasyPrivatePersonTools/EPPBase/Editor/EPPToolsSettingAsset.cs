@@ -440,6 +440,14 @@ namespace EPPTools.PluginSettings
         /// zip文件密码
         /// </summary>
         public string zipFilePassword;
+        /// <summary>
+        /// 热更新资源版本
+        /// </summary>
+        public int resHotfixVersion;
+        /// <summary>
+        /// 热更新代码版本
+        /// </summary>
+        public int luaHotfixVersion;
     }
 
     /// <summary>

@@ -25,8 +25,10 @@ using System.Collections.Generic;
 
 namespace LuaInterface
 {
+    [Serializable]
     public class LuaObjectPool
     {        
+        [Serializable]
         class PoolNode
         {
             public int index;

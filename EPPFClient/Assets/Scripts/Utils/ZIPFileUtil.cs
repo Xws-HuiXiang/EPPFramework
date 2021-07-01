@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
 using ICSharpCode.SharpZipLib.Core;
+using UnityEngine.Networking;
 
 public static class ZIPFileUtil
 {
@@ -42,6 +43,11 @@ public static class ZIPFileUtil
                 //去掉文件根目录 和最后的分隔符
                 string compressionFolderNew = compressionFolder.Replace("/", "\\");
                 string zipEntryName = files[i].FullName.Replace(compressionFolderNew, "").Substring(1);
+                //如果以‘.’开头则不包含
+                if (zipEntryName.StartsWith("."))
+                {
+                    continue;
+                }
                 //ZipEntry代表了压缩包中的一个项 可以是文件 也可以是文件夹
                 ZipEntry entry = new ZipEntry(zipEntryName);
 
@@ -162,11 +168,28 @@ public static class ZIPFileUtil
     /// <param name="fileFullPath"></param>
     /// <param name="contentList"></param>
     /// <param name="password"></param>
-    public static void UnzipABFile(string fileFullPath, out List<byte[]> contentList, string password)
+    public static void UnzipABFile(string fileFullPath, out List<byte[]> contentList, out List<string> fileNameList, string password)
+    {
+        FileStream fileStream = null;
+        //UnityWebRequest www = UnityWebRequest.Get(fileFullPath);
+        //yield return www.SendWebRequest();
+
+        fileStream = File.Open(fileFullPath, FileMode.Open);
+
+        UnzipABFile(fileStream, out contentList, out fileNameList, password);
+    }
+
+    /// <summary>
+    /// 解压缩zip文件。解压ab包的压缩文件，不解压manifest文件
+    /// </summary>
+    /// <param name="fileStream"></param>
+    /// <param name="contentList"></param>
+    /// <param name="password"></param>
+    public static void UnzipABFile(Stream fileStream, out List<byte[]> contentList, out List<string> fileNameList, string password)
     {
         contentList = new List<byte[]>();
+        fileNameList = new List<string>();
 
-        FileStream fileStream = File.Open(fileFullPath, FileMode.Open);
         using (ZipInputStream zipInputStream = new ZipInputStream(fileStream))
         {
             zipInputStream.Password = password;
@@ -195,6 +218,7 @@ public static class ZIPFileUtil
                     StreamUtils.Copy(zipInputStream, streamWriter, buffer);
                     //StreamUtils.ReadFully(zipInputStream, buffer);
                     contentList.Add(streamWriter.ToArray());
+                    fileNameList.Add(entryFileName);
                 }
 
                 entry = zipInputStream.GetNextEntry();

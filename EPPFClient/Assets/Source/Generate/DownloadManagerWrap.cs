@@ -50,7 +50,7 @@ public class DownloadManagerWrap
 				int arg3 = (int)LuaDLL.luaL_checknumber(L, 4);
 				System.Action arg4 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 5);
 				System.Action<HotfixFileType,string,byte[]> arg5 = (System.Action<HotfixFileType,string,byte[]>)ToLua.CheckDelegate<System.Action<HotfixFileType,string,byte[]>>(L, 6);
-				System.Action<float> arg6 = (System.Action<float>)ToLua.CheckDelegate<System.Action<float>>(L, 7);
+				System.Action<float,ulong> arg6 = (System.Action<float,ulong>)ToLua.CheckDelegate<System.Action<float,ulong>>(L, 7);
 				DownloadManager.DownloadServerHotfixAsync(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
 				return 0;
 			}
@@ -73,7 +73,7 @@ public class DownloadManagerWrap
 			ToLua.CheckArgsCount(L, 3);
 			string arg0 = ToLua.CheckString(L, 1);
 			System.Action<byte[]> arg1 = (System.Action<byte[]>)ToLua.CheckDelegate<System.Action<byte[]>>(L, 2);
-			System.Action<float> arg2 = (System.Action<float>)ToLua.CheckDelegate<System.Action<float>>(L, 3);
+			System.Action<float,ulong> arg2 = (System.Action<float,ulong>)ToLua.CheckDelegate<System.Action<float,ulong>>(L, 3);
 			DownloadManager.DownloadFile(arg0, arg1, arg2);
 			return 0;
 		}

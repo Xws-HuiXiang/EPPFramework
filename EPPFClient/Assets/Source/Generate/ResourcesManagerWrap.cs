@@ -7,30 +7,19 @@ public class ResourcesManagerWrap
 	public static void Register(LuaState L)
 	{
 		L.BeginClass(typeof(ResourcesManager), typeof(MonoSingleton<ResourcesManager>));
-		L.RegFunction("GetFontResourcesStructFromType", GetFontResourcesStructFromType);
 		L.RegFunction("AddAssetBundle", AddAssetBundle);
 		L.RegFunction("LoadPrefabFromAssetBundle", LoadPrefabFromAssetBundle);
+		L.RegFunction("GetSpriteFromAssetBundle", GetSpriteFromAssetBundle);
+		L.RegFunction("GetAudioClipFromAssetBundle", GetAudioClipFromAssetBundle);
+		L.RegFunction("GetTextureFromAssetBundle", GetTextureFromAssetBundle);
+		L.RegFunction("GetTexture2DFromAssetBundle", GetTexture2DFromAssetBundle);
+		L.RegFunction("GetTextAssetsFromAssetBundle", GetTextAssetsFromAssetBundle);
+		L.RegFunction("GetRenderTextureFromAssetBundle", GetRenderTextureFromAssetBundle);
+		L.RegFunction("LoadABRes", LoadABRes);
+		L.RegFunction("LoadManifest", LoadManifest);
 		L.RegFunction("__eq", op_Equality);
 		L.RegFunction("__tostring", ToLua.op_ToString);
 		L.EndClass();
-	}
-
-	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-	static int GetFontResourcesStructFromType(IntPtr L)
-	{
-		try
-		{
-			ToLua.CheckArgsCount(L, 2);
-			ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
-			FontResourcesEnum arg0 = (FontResourcesEnum)ToLua.CheckObject(L, 2, typeof(FontResourcesEnum));
-			FontResourcesStruct o = obj.GetFontResourcesStructFromType(arg0);
-			ToLua.PushValue(L, o);
-			return 1;
-		}
-		catch (Exception e)
-		{
-			return LuaDLL.toluaL_exception(L, e);
-		}
 	}
 
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -38,11 +27,26 @@ public class ResourcesManagerWrap
 	{
 		try
 		{
-			ToLua.CheckArgsCount(L, 2);
-			ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
-			System.Collections.Generic.List<UnityEngine.AssetBundle> arg0 = (System.Collections.Generic.List<UnityEngine.AssetBundle>)ToLua.CheckObject(L, 2, typeof(System.Collections.Generic.List<UnityEngine.AssetBundle>));
-			obj.AddAssetBundle(arg0);
-			return 0;
+			int count = LuaDLL.lua_gettop(L);
+
+			if (count == 2 && TypeChecker.CheckTypes<System.Collections.Generic.List<UnityEngine.AssetBundle>>(L, 2))
+			{
+				ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
+				System.Collections.Generic.List<UnityEngine.AssetBundle> arg0 = (System.Collections.Generic.List<UnityEngine.AssetBundle>)ToLua.ToObject(L, 2);
+				obj.AddAssetBundle(arg0);
+				return 0;
+			}
+			else if (count == 2 && TypeChecker.CheckTypes<UnityEngine.AssetBundle>(L, 2))
+			{
+				ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
+				UnityEngine.AssetBundle arg0 = (UnityEngine.AssetBundle)ToLua.ToObject(L, 2);
+				obj.AddAssetBundle(arg0);
+				return 0;
+			}
+			else
+			{
+				return LuaDLL.luaL_throw(L, "invalid arguments to method: ResourcesManager.AddAssetBundle");
+			}
 		}
 		catch (Exception e)
 		{
@@ -62,6 +66,154 @@ public class ResourcesManagerWrap
 			UnityEngine.GameObject o = obj.LoadPrefabFromAssetBundle(arg0, arg1);
 			ToLua.PushSealed(L, o);
 			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int GetSpriteFromAssetBundle(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 3);
+			ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
+			string arg0 = ToLua.CheckString(L, 2);
+			string arg1 = ToLua.CheckString(L, 3);
+			UnityEngine.Sprite o = obj.GetSpriteFromAssetBundle(arg0, arg1);
+			ToLua.PushSealed(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int GetAudioClipFromAssetBundle(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 3);
+			ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
+			string arg0 = ToLua.CheckString(L, 2);
+			string arg1 = ToLua.CheckString(L, 3);
+			UnityEngine.AudioClip o = obj.GetAudioClipFromAssetBundle(arg0, arg1);
+			ToLua.PushSealed(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int GetTextureFromAssetBundle(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 3);
+			ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
+			string arg0 = ToLua.CheckString(L, 2);
+			string arg1 = ToLua.CheckString(L, 3);
+			UnityEngine.Texture o = obj.GetTextureFromAssetBundle(arg0, arg1);
+			ToLua.Push(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int GetTexture2DFromAssetBundle(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 3);
+			ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
+			string arg0 = ToLua.CheckString(L, 2);
+			string arg1 = ToLua.CheckString(L, 3);
+			UnityEngine.Texture2D o = obj.GetTexture2DFromAssetBundle(arg0, arg1);
+			ToLua.PushSealed(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int GetTextAssetsFromAssetBundle(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 3);
+			ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
+			string arg0 = ToLua.CheckString(L, 2);
+			string arg1 = ToLua.CheckString(L, 3);
+			UnityEngine.TextAsset o = obj.GetTextAssetsFromAssetBundle(arg0, arg1);
+			ToLua.Push(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int GetRenderTextureFromAssetBundle(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 3);
+			ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
+			string arg0 = ToLua.CheckString(L, 2);
+			string arg1 = ToLua.CheckString(L, 3);
+			UnityEngine.RenderTexture o = obj.GetRenderTextureFromAssetBundle(arg0, arg1);
+			ToLua.Push(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int LoadABRes(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
+			string arg0 = ToLua.CheckString(L, 2);
+			UnityEngine.AssetBundle o = obj.LoadABRes(arg0);
+			ToLua.Push(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int LoadManifest(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 1);
+			ResourcesManager obj = (ResourcesManager)ToLua.CheckObject<ResourcesManager>(L, 1);
+			obj.LoadManifest();
+			return 0;
 		}
 		catch (Exception e)
 		{

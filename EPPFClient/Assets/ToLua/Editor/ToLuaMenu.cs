@@ -100,8 +100,8 @@ public static class ToLuaMenu
     };
 
     private static bool beAutoGen = false;
-    //修改：没有warp文件时也不弹出生成warp文件的提示
-    private static bool beCheck = false;        
+    //这个值，代表了当没有wrap文件（清空文件后）是否给出生成wrap文件提示的弹窗
+    private static bool beCheck = true;        
     static List<BindType> allTypes = new List<BindType>();
 
     static ToLuaMenu()

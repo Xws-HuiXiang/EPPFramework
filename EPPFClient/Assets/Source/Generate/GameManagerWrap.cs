@@ -9,9 +9,25 @@ public class GameManagerWrap
 		L.BeginClass(typeof(GameManager), typeof(MonoSingleton<GameManager>));
 		L.RegFunction("GameSceneLuaMain", GameSceneLuaMain);
 		L.RegFunction("EnterMainScene", EnterMainScene);
+		L.RegFunction("AddUpdateAction", AddUpdateAction);
+		L.RegFunction("RemoveUpdateAction", RemoveUpdateAction);
+		L.RegFunction("ClearUpdateAction", ClearUpdateAction);
+		L.RegFunction("ContainsUpdateAction", ContainsUpdateAction);
+		L.RegFunction("AddFixedUpdateAction", AddFixedUpdateAction);
+		L.RegFunction("RemoveFixedUpdateAction", RemoveFixedUpdateAction);
+		L.RegFunction("ClearFixedUpdateAction", ClearFixedUpdateAction);
+		L.RegFunction("AddLateUpdateAction", AddLateUpdateAction);
+		L.RegFunction("RemoveLateUpdateAction", RemoveLateUpdateAction);
+		L.RegFunction("ClearLateUpdateAction", ClearLateUpdateAction);
+		L.RegFunction("OpenLuaProtobuf", OpenLuaProtobuf);
+		L.RegFunction("SetLuaLooper", SetLuaLooper);
+		L.RegFunction("AddMainThreadUpdateQueueAction", AddMainThreadUpdateQueueAction);
 		L.RegFunction("__eq", op_Equality);
 		L.RegFunction("__tostring", ToLua.op_ToString);
+		L.RegVar("LuaState", get_LuaState, null);
+		L.RegVar("LuaLoop", get_LuaLoop, null);
 		L.RegVar("Config", get_Config, set_Config);
+		L.RegVar("UpdateActionListCount", get_UpdateActionListCount, null);
 		L.EndClass();
 	}
 
@@ -48,6 +64,223 @@ public class GameManagerWrap
 	}
 
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int AddUpdateAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			System.Action arg0 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 2);
+			obj.AddUpdateAction(arg0);
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int RemoveUpdateAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			System.Action arg0 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 2);
+			obj.RemoveUpdateAction(arg0);
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int ClearUpdateAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 1);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			obj.ClearUpdateAction();
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int ContainsUpdateAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			System.Action arg0 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 2);
+			bool o = obj.ContainsUpdateAction(arg0);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int AddFixedUpdateAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			System.Action arg0 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 2);
+			obj.AddFixedUpdateAction(arg0);
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int RemoveFixedUpdateAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			System.Action arg0 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 2);
+			obj.RemoveFixedUpdateAction(arg0);
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int ClearFixedUpdateAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 1);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			obj.ClearFixedUpdateAction();
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int AddLateUpdateAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			System.Action arg0 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 2);
+			obj.AddLateUpdateAction(arg0);
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int RemoveLateUpdateAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			System.Action arg0 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 2);
+			obj.RemoveLateUpdateAction(arg0);
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int ClearLateUpdateAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 1);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			obj.ClearLateUpdateAction();
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int OpenLuaProtobuf(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 1);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			obj.OpenLuaProtobuf();
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int SetLuaLooper(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 1);
+			LuaLooper arg0 = (LuaLooper)ToLua.CheckObject<LuaLooper>(L, 1);
+			GameManager.SetLuaLooper(arg0);
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int AddMainThreadUpdateQueueAction(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			GameManager obj = (GameManager)ToLua.CheckObject<GameManager>(L, 1);
+			System.Action arg0 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 2);
+			obj.AddMainThreadUpdateQueueAction(arg0);
+			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static int op_Equality(IntPtr L)
 	{
 		try
@@ -57,6 +290,34 @@ public class GameManagerWrap
 			UnityEngine.Object arg1 = (UnityEngine.Object)ToLua.ToObject(L, 2);
 			bool o = arg0 == arg1;
 			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_LuaState(IntPtr L)
+	{
+		try
+		{
+			ToLua.PushObject(L, GameManager.LuaState);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_LuaLoop(IntPtr L)
+	{
+		try
+		{
+			ToLua.Push(L, GameManager.LuaLoop);
 			return 1;
 		}
 		catch (Exception e)
@@ -81,6 +342,25 @@ public class GameManagerWrap
 		catch(Exception e)
 		{
 			return LuaDLL.toluaL_exception(L, e, o, "attempt to index Config on a nil value");
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_UpdateActionListCount(IntPtr L)
+	{
+		object o = null;
+
+		try
+		{
+			o = ToLua.ToObject(L, 1);
+			GameManager obj = (GameManager)o;
+			int ret = obj.UpdateActionListCount;
+			LuaDLL.lua_pushinteger(L, ret);
+			return 1;
+		}
+		catch(Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e, o, "attempt to index UpdateActionListCount on a nil value");
 		}
 	}
 

@@ -25,6 +25,7 @@ using System.Reflection;
 
 namespace LuaInterface
 {
+    [Serializable]
     public class LuaReflection : IDisposable
     {
         public List<Assembly> list = new List<Assembly>();

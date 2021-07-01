@@ -148,6 +148,13 @@ namespace LuaInterface
                 {
                     return fullPath;
                 }
+
+                //修改：因为修改了后缀名，这里再加一次判断
+                fullPath = searchPaths[i].Replace("?", fileName).Replace(".lua", AppConst.EncryptionFillSuffix);
+                if (File.Exists(fullPath))
+                {
+                    return fullPath;
+                }
             }
 
             return null;

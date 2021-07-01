@@ -26,6 +26,7 @@ using UnityEngine;
 
 namespace LuaInterface
 {
+    [Serializable]
     public abstract class LuaBaseRef : IDisposable
     {
         public string name = null;

@@ -8,6 +8,7 @@ using System.Text;
 
 namespace LuaInterface
 {
+    [Serializable]
     public class LuaStatePtr
     {
         protected IntPtr L;

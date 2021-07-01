@@ -1,0 +1,312 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EPPFDebugger</name>
+    </assembly>
+    <members>
+        <member name="T:FDebugger">
+            <summary>
+            日志输出类。封装了Unity的Debug类，日志的打印受到初始化的值的控制
+            </summary>
+        </member>
+        <member name="P:FDebugger.developerConsoleVisible">
+            <summary>
+            开发控制台是否可见。开发控制台不能出现使用
+            </summary>
+        </member>
+        <member name="P:FDebugger.unityLogger">
+            <summary>
+            获取默认调试记录器
+            </summary>
+        </member>
+        <member name="P:FDebugger.isDebugBuild">
+            <summary>
+            在构建设置对话框中有一个叫做“开发模式构建”的复选框
+            </summary>
+        </member>
+        <member name="M:FDebugger.Init(System.Boolean)">
+            <summary>
+            初始化。如果需要在Unity的控制台打印日志则必须调用此方法并传入true，默认不在Unity控制台打印日志
+            </summary>
+            <param name="devMode">是否在控制台打印日志</param>
+        </member>
+        <member name="M:FDebugger.Assert(System.Boolean,System.String,UnityEngine.Object)">
+            <summary>
+            断言条件并在失败时将错误消息记录到Unity控制台
+            </summary>
+            <param name="condition"></param>
+            <param name="message"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:FDebugger.Assert(System.Boolean)">
+            <summary>
+            断言条件并在失败时将错误消息记录到Unity控制台
+            </summary>
+            <param name="condition"></param>
+        </member>
+        <member name="M:FDebugger.Assert(System.Boolean,System.Object,UnityEngine.Object)">
+            <summary>
+            断言条件并在失败时将错误消息记录到Unity控制台
+            </summary>
+            <param name="condition"></param>
+            <param name="message"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:FDebugger.Assert(System.Boolean,System.String)">
+            <summary>
+            断言条件并在失败时将错误消息记录到Unity控制台
+            </summary>
+            <param name="condition"></param>
+            <param name="message"></param>
+        </member>
+        <member name="M:FDebugger.Assert(System.Boolean,System.Object)">
+            <summary>
+            断言条件并在失败时将错误消息记录到Unity控制台
+            </summary>
+            <param name="condition"></param>
+            <param name="message"></param>
+        </member>
+        <member name="M:FDebugger.Assert(System.Boolean,UnityEngine.Object)">
+            <summary>
+            断言条件并在失败时将错误消息记录到Unity控制台
+            </summary>
+            <param name="condition"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:FDebugger.AssertFormat(System.Boolean,UnityEngine.Object,System.String,System.Object[])">
+            <summary>
+            断言条件并在失败时将错误消息格式化后记录到Unity控制台
+            </summary>
+            <param name="condition"></param>
+            <param name="context"></param>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="M:FDebugger.AssertFormat(System.Boolean,System.String,System.Object[])">
+            <summary>
+            断言条件并在失败时将错误消息格式化后记录到Unity控制台
+            </summary>
+            <param name="condition"></param>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="M:FDebugger.Break">
+            <summary>
+            暂停编辑器
+            </summary>
+        </member>
+        <member name="M:FDebugger.ClearDeveloperConsole">
+            <summary>
+            清除控制台中的错误
+            </summary>
+        </member>
+        <member name="M:FDebugger.DebugBreak">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:FDebugger.DrawLine(UnityEngine.Vector3,UnityEngine.Vector3,UnityEngine.Color,System.Single)">
+            <summary>
+            在指定的起点和终点之间画一条线
+            </summary>
+            <param name="start"></param>
+            <param name="end"></param>
+            <param name="color"></param>
+            <param name="duration"></param>
+        </member>
+        <member name="M:FDebugger.DrawLine(UnityEngine.Vector3,UnityEngine.Vector3,UnityEngine.Color)">
+            <summary>
+            在指定的起点和终点之间画一条线
+            </summary>
+            <param name="start"></param>
+            <param name="end"></param>
+            <param name="color"></param>
+        </member>
+        <member name="M:FDebugger.DrawLine(UnityEngine.Vector3,UnityEngine.Vector3)">
+            <summary>
+            在指定的起点和终点之间画一条线
+            </summary>
+            <param name="start"></param>
+            <param name="end"></param>
+        </member>
+        <member name="M:FDebugger.DrawLine(UnityEngine.Vector3,UnityEngine.Vector3,UnityEngine.Color,System.Single,System.Boolean)">
+            <summary>
+            在指定的起点和终点之间画一条线
+            </summary>
+            <param name="start"></param>
+            <param name="end"></param>
+            <param name="color"></param>
+            <param name="duration"></param>
+            <param name="depthTest"></param>
+        </member>
+        <member name="M:FDebugger.DrawRay(UnityEngine.Vector3,UnityEngine.Vector3,UnityEngine.Color,System.Single)">
+            <summary>
+            在世界坐标中绘制从开始到开始的线条
+            </summary>
+            <param name="start"></param>
+            <param name="dir"></param>
+            <param name="color"></param>
+            <param name="duration"></param>
+        </member>
+        <member name="M:FDebugger.DrawRay(UnityEngine.Vector3,UnityEngine.Vector3,UnityEngine.Color)">
+            <summary>
+            在世界坐标中绘制从开始到开始的线条
+            </summary>
+            <param name="start"></param>
+            <param name="dir"></param>
+            <param name="color"></param>
+        </member>
+        <member name="M:FDebugger.DrawRay(UnityEngine.Vector3,UnityEngine.Vector3,UnityEngine.Color,System.Single,System.Boolean)">
+            <summary>
+            在世界坐标中绘制从开始到开始的线条
+            </summary>
+            <param name="start"></param>
+            <param name="dir"></param>
+            <param name="color"></param>
+            <param name="duration"></param>
+            <param name="depthTest"></param>
+        </member>
+        <member name="M:FDebugger.DrawRay(UnityEngine.Vector3,UnityEngine.Vector3)">
+            <summary>
+            在世界坐标中绘制从开始到开始的线条
+            </summary>
+            <param name="start"></param>
+            <param name="dir"></param>
+        </member>
+        <member name="M:FDebugger.Log(System.Object)">
+            <summary>
+            打印一条日志
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:FDebugger.Log(System.Object,UnityEngine.Object)">
+            <summary>
+            打印一条日志
+            </summary>
+            <param name="message"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:FDebugger.LogAssertion(System.Object,UnityEngine.Object)">
+            <summary>
+            将断言消息记录到控制台的调试日志的变体
+            </summary>
+            <param name="message"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:FDebugger.LogAssertion(System.Object)">
+            <summary>
+            将断言消息记录到控制台的调试日志的变体
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:FDebugger.LogAssertionFormat(UnityEngine.Object,System.String,System.Object[])">
+            <summary>
+            将格式化的断言消息记录到Unity控制台
+            </summary>
+            <param name="context"></param>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="M:FDebugger.LogAssertionFormat(System.String,System.Object[])">
+            <summary>
+            将格式化的断言消息记录到Unity控制台
+            </summary>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="M:FDebugger.LogError(System.Object)">
+            <summary>
+            打印一条错误信息
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:FDebugger.LogError(System.Object,UnityEngine.Object)">
+            <summary>
+            打印一条错误信息
+            </summary>
+            <param name="message"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:FDebugger.LogErrorFormat(System.String,System.Object[])">
+            <summary>
+            打印一条错误信息。以格式化字符串的形式打印
+            </summary>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="M:FDebugger.LogErrorFormat(UnityEngine.Object,System.String,System.Object[])">
+            <summary>
+            打印一条错误信息。以格式化字符串的形式打印
+            </summary>
+            <param name="context"></param>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="M:FDebugger.LogException(System.Exception)">
+            <summary>
+            从控制台中记录错误消息的调试日志的变体
+            </summary>
+            <param name="exception"></param>
+        </member>
+        <member name="M:FDebugger.LogException(System.Exception,UnityEngine.Object)">
+            <summary>
+            从控制台中记录错误消息的调试日志的变体
+            </summary>
+            <param name="exception"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:FDebugger.LogFormat(System.String,System.Object[])">
+            <summary>
+            打印一条日志。以格式化字符串的形式打印
+            </summary>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="M:FDebugger.LogFormat(UnityEngine.Object,System.String,System.Object[])">
+            <summary>
+            打印一条日志。以格式化字符串的形式打印
+            </summary>
+            <param name="context"></param>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="M:FDebugger.LogFormat(UnityEngine.LogType,UnityEngine.LogOption,UnityEngine.Object,System.String,System.Object[])">
+            <summary>
+            打印一条日志。以格式化字符串的形式打印
+            </summary>
+            <param name="logType"></param>
+            <param name="logOptions"></param>
+            <param name="context"></param>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="M:FDebugger.LogWarning(System.Object)">
+            <summary>
+            打印一条警告信息
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:FDebugger.LogWarning(System.Object,UnityEngine.Object)">
+            <summary>
+            打印一条警告信息
+            </summary>
+            <param name="message"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:FDebugger.LogWarningFormat(System.String,System.Object[])">
+            <summary>
+            打印一条警告信息。以格式化字符串的形式打印
+            </summary>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="M:FDebugger.LogWarningFormat(UnityEngine.Object,System.String,System.Object[])">
+            <summary>
+            打印一条警告信息。以格式化字符串的形式打印
+            </summary>
+            <param name="context"></param>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+    </members>
+</doc>

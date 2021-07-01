@@ -211,9 +211,21 @@ end
                     //选择多个就创建多个
                     for (int i = 0; i < selectionObjects.Length; i++)
                     {
-                        Button[] buttonArray = (selectionObjects[i] as GameObject).GetComponentsInChildren<Button>();
-                        Toggle[] toggleArray = (selectionObjects[i] as GameObject).GetComponentsInChildren<Toggle>();
-                        string prefabName = (selectionObjects[i] as GameObject).name;
+                        GameObject go = (selectionObjects[i] as GameObject);
+
+                        //检查一下物体名称是否以panel结尾，如果不是则给出警告
+                        if(!go.name.EndsWith("Panel", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (!EditorUtility.DisplayDialog("警告", string.Format("选择的场景物体名称[{0}]不是以‘Panel’结尾，是否继续？", go.name), "是", "否"))
+                            {
+                                //选择了否则跳出循环
+                                break;
+                            }
+                        }
+
+                        Button[] buttonArray = go.GetComponentsInChildren<Button>();
+                        Toggle[] toggleArray = go.GetComponentsInChildren<Toggle>();
+                        string prefabName = go.name;
                         CreateFileAndWriteTemplate(prefabName, buttonArray, toggleArray, attachReferenceList, PrefabSource.Hierarchy);
 
                         //是否在LuaManager中添加引用

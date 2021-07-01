@@ -6,6 +6,10 @@ using System.IO;
 using EPPTools.PluginSettings;
 using System;
 using EPPTools.Utils;
+using Ciphertext;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace EPPTools.CreateAssetsBundleTools
 {
@@ -95,6 +99,14 @@ namespace EPPTools.CreateAssetsBundleTools
         /// </summary>
         [SerializeField]
         private static string suffixName;
+        /// <summary>
+        /// 热更新资源版本
+        /// </summary>
+        private static int resHotfixVersion;
+        /// <summary>
+        /// 热更新代码版本
+        /// </summary>
+        private static int luaHotfixVersion;
 
         [MenuItem("EPP Tools/Create Assets Bundle")]
         public static void OpenWindow()
@@ -119,6 +131,8 @@ namespace EPPTools.CreateAssetsBundleTools
             zipFilePassword = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.zipFilePassword;
             zipOutPutPath = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.zipOutPutPath;
             luaOutPutPath = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.luaOutPutPath;
+            resHotfixVersion = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.resHotfixVersion;
+            luaHotfixVersion = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.luaHotfixVersion;
 
             window.Show();
         }
@@ -165,6 +179,8 @@ namespace EPPTools.CreateAssetsBundleTools
                     break;
             }
             PickUpPathButtonGUI("ab包保存路径", ref outPutPath);
+            resHotfixVersion = EditorGUILayout.IntField("热更新资源版本", resHotfixVersion);
+            luaHotfixVersion = EditorGUILayout.IntField("热更新代码版本", luaHotfixVersion);
 
             suffixName = EditorGUILayout.TextField("后缀名", suffixName);
             buildAssetBundleOptions = (BuildAssetBundleOptions)EditorGUILayout.EnumPopup("压缩方式", buildAssetBundleOptions);
@@ -172,6 +188,9 @@ namespace EPPTools.CreateAssetsBundleTools
 
             if (GUILayout.Button("打包"))
             {
+                List<string> ignoreFolderList = new List<string>() { ".idea" };
+                List<string> ignoreFileList = new List<string>() { ".meta" };
+
                 if (packageRes)
                 {
                     //打包资源
@@ -197,20 +216,13 @@ namespace EPPTools.CreateAssetsBundleTools
                         BuildPipeline.BuildAssetBundles(outPutPath, buildAssetBundleOptions, buildTarget);
                     }
                 }
-                if (packageLuaCode)
-                {
-                    //lua代码。不打成ab包，直接将文件复制到目标目录
-                    if (!Directory.Exists(luaOutPutPath))
-                    {
-                        Directory.CreateDirectory(luaOutPutPath);
-                    }
-                    List<string> ignore = new List<string>();
-                    ignore.Add(".meta");
-                    //复制项目的业务代码
-                    DirectoryUtils.CopyDirectory(luaTargetFolderRootFolder, luaOutPutPath, ignore, true);
-                    //复制ToLua框架代码
-                    DirectoryUtils.CopyDirectory(toLuaTargetFolderRootFolder, luaOutPutPath, ignore, true);
-                }
+
+                //Res部分
+                PackageRes(ignoreFileList);
+                //Lua代码部分
+                PackageLua(ignoreFileList, ignoreFolderList);
+
+                /*
                 if (generateZipFile)
                 {
                     if (!Directory.Exists(zipOutPutPath))
@@ -219,12 +231,19 @@ namespace EPPTools.CreateAssetsBundleTools
                     }
 
                     //资源的zip包
-                    string assetZIPName = Application.dataPath + zipOutPutPath.Substring(6) + "/Res_" + System.DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss") + ".zip";
+                    string zipPath = Application.dataPath + zipOutPutPath.Substring(6) + "/" + hotfixVersion.ToString();
+                    if (!Directory.Exists(zipPath))
+                    {
+                        Directory.CreateDirectory(zipPath);
+                    }
+                    string assetZIPName = zipPath + "/Res_" + System.DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss") + ".zip";
                     ZIPFileUtil.CreateZIPFile(assetZIPName, Application.dataPath + outPutPath.Substring(6), zipFilePassword, null);
                     //lua代码的zip包
-                    string luaZIPName = Application.dataPath + zipOutPutPath.Substring(6) + "/Lua_" + System.DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss") + ".zip";
+                    string luaZIPName = zipPath + "/Lua_" + System.DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss") + ".zip";
                     ZIPFileUtil.CreateZIPFile(luaZIPName, Application.dataPath + luaOutPutPath.Substring(6), zipFilePassword, null);
                 }
+                */
+
 
                 SaveConfig();
 
@@ -408,8 +427,173 @@ namespace EPPTools.CreateAssetsBundleTools
             config.zipOutPutPath = zipOutPutPath;
             config.luaOutPutPath = luaOutPutPath;
             config.zipFilePassword = zipFilePassword;
+            config.resHotfixVersion = resHotfixVersion;
+            config.luaHotfixVersion = luaHotfixVersion;
 
             EPPToolsSettingAsset.Instance.SetCreateAssetsBundleConfig(config);
+        }
+
+        /// <summary>
+        /// res打包相关的逻辑
+        /// </summary>
+        /// <param name="ignoreFileList"></param>
+        private void PackageRes(List<string> ignoreFileList)
+        {
+            //对ab包使用AES加密处理。先复制一份出来用于加密
+            string resFullPath = Application.dataPath + outPutPath.Substring(6);
+            string targetFullPath = Path.Combine(Application.dataPath, "AssetBundle", "AESEncryption");
+            DirectoryUtils.CopyDirectory(resFullPath, targetFullPath, ignoreFileList, null);
+            //不加密AssetBundle文件
+            string[] targetFolderFiles = Directory.GetFiles(targetFullPath, "*.*", SearchOption.AllDirectories).Where(
+                s => s.EndsWith(AppConst.AssetBundleSuffix) ||
+                     s.EndsWith(".manifest")).ToArray();
+
+            for (int i = 0; i < targetFolderFiles.Length; i++)
+            {
+                string fileFullName = targetFolderFiles[i];
+                string fileName = Path.GetFileName(fileFullName);
+                fileName = fileName.Replace(AppConst.AssetBundleSuffix, "");//去掉.ab
+                string directoryName = Path.GetDirectoryName(fileFullName);
+                string encryptionFileFullPath = Path.Combine(directoryName, fileName + AppConst.EncryptionFillSuffix);
+
+                byte[] fileBytes = File.ReadAllBytes(fileFullName);
+                byte[] encryptionBytes = AES.AESEncrypt(fileBytes, AppConst.AbPackageKey);
+
+                if (File.Exists(encryptionFileFullPath))
+                {
+                    File.Delete(encryptionFileFullPath);
+                }
+                if (File.Exists(fileFullName))
+                {
+                    File.Delete(fileFullName);
+                }
+                FileStream fs = File.Create(encryptionFileFullPath);
+                fs.Write(encryptionBytes, 0, encryptionBytes.Length);
+                fs.Close();
+            }
+
+            //拷贝加密后的文件到Assets文件夹外面
+            string resPathOutAssetsPath = Application.dataPath;
+            resPathOutAssetsPath = Path.Combine(resPathOutAssetsPath.Substring(0, resPathOutAssetsPath.Length - 6), "Resource", buildTarget.ToString(), resHotfixVersion.ToString(), "Res" + resHotfixVersion.ToString());
+            resPathOutAssetsPath = resPathOutAssetsPath.Replace("/", "\\");
+            DirectoryUtils.CopyDirectory(targetFullPath, resPathOutAssetsPath, ignoreFileList, null);
+
+            CheckMD5(resPathOutAssetsPath, resHotfixVersion, "Res");
+        }
+
+        /// <summary>
+        /// lua打包相关逻辑
+        /// </summary>
+        /// <param name="ignoreFileList"></param>
+        /// <param name="ignoreFolderList"></param>
+        private void PackageLua(List<string> ignoreFileList, List<string> ignoreFolderList)
+        {
+            if (packageLuaCode)
+            {
+                //lua代码。不打成ab包，直接将文件复制到目标目录
+                if (!Directory.Exists(luaOutPutPath))
+                {
+                    Directory.CreateDirectory(luaOutPutPath);
+                }
+                //复制项目的业务代码
+                DirectoryUtils.CopyDirectory(luaTargetFolderRootFolder, luaOutPutPath, ignoreFileList, ignoreFolderList, true);
+                //复制ToLua框架代码
+                DirectoryUtils.CopyDirectory(toLuaTargetFolderRootFolder, luaOutPutPath, ignoreFileList, ignoreFolderList, true);
+            }
+
+            //System.Diagnostics.Process.Start("explorer.exe", resPathOutAssetsPath);
+
+            string luaPathOutAssetsPath = Application.dataPath;
+            luaPathOutAssetsPath = Path.Combine(luaPathOutAssetsPath.Substring(0, luaPathOutAssetsPath.Length - 6), "Resource", buildTarget.ToString(), luaHotfixVersion.ToString(), "Lua" + luaHotfixVersion.ToString());
+            luaPathOutAssetsPath = luaPathOutAssetsPath.Replace("/", "\\");
+
+            DirectoryUtils.CopyDirectory(luaOutPutPath, luaPathOutAssetsPath, ignoreFileList, ignoreFolderList);
+
+            //使用AES加密
+            string[] luaFilesFullPath = Directory.GetFiles(luaPathOutAssetsPath, "*.lua", SearchOption.AllDirectories);
+            for(int i = 0; i < luaFilesFullPath.Length; i++)
+            {
+                byte[] data = File.ReadAllBytes(luaFilesFullPath[i]);
+                data = AES.AESEncrypt(data, AppConst.AbPackageKey);
+                
+                File.Delete(luaFilesFullPath[i]);
+                string newFileFullPath = luaFilesFullPath[i].Substring(0, luaFilesFullPath[i].Length - 4) + AppConst.EncryptionFillSuffix;
+                FileStream fs = File.Create(newFileFullPath);
+                fs.Write(data, 0, data.Length);
+                fs.Close();
+            }
+
+            CheckMD5(luaPathOutAssetsPath, luaHotfixVersion, "Lua");
+        }
+
+        /// <summary>
+        /// MD5值检测，如果MD5值相同则删除上一个版本的文件
+        /// </summary>
+        /// <param name="outAssetPath"></param>
+        /// <param name="hotfixVersion"></param>
+        /// <param name="folderName"></param>
+        private void CheckMD5(string outAssetPath, int hotfixVersion, string folderName)
+        {
+            //对比之前版本的文件，决定是否剔除。版本号大于1才有之前的版本文件信息
+            if (hotfixVersion > 1)
+            {
+                int lowHotfixVersion = hotfixVersion - 1;
+                string lowResPath = Path.Combine(outAssetPath.Substring(0, outAssetPath.Length - 6), lowHotfixVersion.ToString(), folderName + lowHotfixVersion.ToString());
+                string[] heightVersionFiles = Directory.GetFiles(outAssetPath, "*.*", SearchOption.AllDirectories);
+                string[] lowVersionFiles = Directory.GetFiles(lowResPath, "*.*", SearchOption.AllDirectories);
+
+                List<string> lowVersionFileNamesList = new List<string>();
+                for (int i = 0; i < lowVersionFiles.Length; i++)
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(lowVersionFiles[i]);
+                    lowVersionFileNamesList.Add(fileName);
+                }
+                for (int i = 0; i < heightVersionFiles.Length; i++)
+                {
+                    string heightVersionFileFullPath = heightVersionFiles[i];
+                    string fileName = Path.GetFileNameWithoutExtension(heightVersionFileFullPath);
+                    if (lowVersionFileNamesList.Contains(fileName))
+                    {
+                        //以前的版本也包含这个文件，校验两个文件的md5值
+                        string heightMD5 = GetMD5HashFromFile(heightVersionFiles[i]);
+                        int lowVersionFileIndex = lowVersionFileNamesList.IndexOf(fileName);
+                        string lowMD5 = GetMD5HashFromFile(lowVersionFiles[lowVersionFileIndex]);
+                        //Debug.LogFormat("校验两个MD5：高版本[{0}]，低版本[{1}]", heightMD5, lowMD5);
+
+                        if (heightMD5.Equals(lowMD5))
+                        {
+                            //md5值相同，说明文件没有改动，删除该文件
+                            File.Delete(heightVersionFileFullPath);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取文件的MD5码
+        /// </summary>
+        /// <param name="fileName">传入的文件名（含路径及后缀名）</param>
+        /// <returns></returns>
+        public string GetMD5HashFromFile(string fileName)
+        {
+            try
+            {
+                FileStream file = new FileStream(fileName, System.IO.FileMode.Open);
+                MD5 md5 = new MD5CryptoServiceProvider();
+                byte[] retVal = md5.ComputeHash(file);
+                file.Close();
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < retVal.Length; i++)
+                {
+                    sb.Append(retVal[i].ToString("x2"));
+                }
+                return sb.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("GetMD5HashFromFile() fail,error:" + ex.Message);
+            }
         }
     }
 }

@@ -107,7 +107,7 @@ MonoBehaviour:
     autoChangeAssetBundleName: 1
     outPutPath: Assets/AssetBundle/AssetBundle
     buildAssetBundleOptions: 0
-    buildTarget: 19
+    buildTarget: 5
     suffixName: ab
     luaTargetFolderRootFolder: Assets/LuaFramework/Lua
     toLuaTargetFolderRootFolder: Assets/ToLua/Lua
@@ -116,17 +116,19 @@ MonoBehaviour:
     generateZipFile: 1
     zipOutPutPath: Assets/AssetBundle/Zip
     luaOutPutPath: Assets/AssetBundle/Lua
-    zipFilePassword: ZipPassword
+    zipFilePassword: UNO
+    resHotfixVersion: 1
+    luaHotfixVersion: 1
   createToLuaTemplateFileConfig:
     ctrlFilePath: Assets/LuaFramework/Lua/Ctrl
     panelFilePath: Assets/LuaFramework/Lua/View
     addToCtrlLuaManager: 1
-    luaManagerFilePath: Assets/LuaFramework/Lua/Ctrl/CtrlLuaManager.lua
+    luaManagerFilePath: Assets/LuaFramework/Lua/Managers/CtrlLuaManager.lua
     requireCtrlFilePath: Ctrl
     generateButtonListener: 1
     generateToggleListener: 1
     createCtrlFile: 1
     createPanelFile: 1
     writeInClipboard: 0
-    assetBundleName: MainPage.ab
+    assetBundleName: MainPage
     attachObjectListFoldout: 1

@@ -28,6 +28,7 @@ using System.Runtime.CompilerServices;
 
 namespace LuaInterface
 {
+    [Serializable]
     public class GCRef
     {
         public int reference;

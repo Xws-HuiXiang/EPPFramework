@@ -54,6 +54,44 @@ public class OpenSomeFolder
     }
 
     /// <summary>
+    /// 打开构建目录
+    /// </summary>
+    [MenuItem("Folder Util/Open Build Path")]
+    public static void OpenBuildPath()
+    {
+        string path = Application.dataPath;
+        path = path.Substring(0, path.Length - 6) + "Builds";
+        path = path.Replace("/", "\\");
+        if (Directory.Exists(path))
+        {
+            Process.Start("explorer.exe", path);
+        }
+        else
+        {
+            FDebugger.LogFormat("路径：{0}。不存在，请自行检查对应位置目录", path);
+        }
+    }
+
+    /// <summary>
+    /// 打开协议类生成工具的目录
+    /// </summary>
+    [MenuItem("Folder Util/Open Protocol Tools Path")]
+    public static void OpenProtocolToolsPath()
+    {
+        string path = Application.dataPath;
+        path = path.Substring(0, path.Length - 6) + "协议相关类生成工具";
+        path = path.Replace("/", "\\");
+        if (Directory.Exists(path))
+        {
+            Process.Start("explorer.exe", path);
+        }
+        else
+        {
+            FDebugger.LogFormat("路径：{0}。不存在，请自行检查对应位置目录", path);
+        }
+    }
+
+    /// <summary>
     /// 获得不包含Assets/开头的相对资源路径
     /// </summary>
     /// <param name="localPath"></param>

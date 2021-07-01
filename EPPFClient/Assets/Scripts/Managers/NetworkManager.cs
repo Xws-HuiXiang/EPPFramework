@@ -1,5 +1,5 @@
-﻿using CommonProtocol;
-using LitJson;
+﻿using LitJson;
+using LuaInterface;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +11,8 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UNOServer.Common;
+using ProtoBuf;
+using Ciphertext;
 
 /// <summary>
 /// 消息队列结构体
@@ -23,7 +25,7 @@ public struct MsgQueue
     /// <param name="handleID"></param>
     /// <param name="handleMethodID"></param>
     /// <param name="msgByteArray"></param>
-    public MsgQueue(int handleID, int handleMethodID, byte[] msgByteArray)
+    public MsgQueue(int handleID, int handleMethodID, LuaByteBuffer msgByteArray)
     {
         this.HandleID = handleID;
         this.HandleMethodID = handleMethodID;
@@ -32,7 +34,7 @@ public struct MsgQueue
 
     public int HandleID { get; set; }
     public int HandleMethodID { get; set; }
-    public byte[] MsgByteArray { get; set; }
+    public LuaByteBuffer MsgByteArray { get; set; }
 }
 
 public class NetworkManager : MonoSingleton<NetworkManager>
@@ -49,6 +51,17 @@ public class NetworkManager : MonoSingleton<NetworkManager>
     /// </summary>
     public static string SecretKey { get { return secretKey; } }
 
+    private static byte[] msgPrivateKey = null;
+    /// <summary>
+    /// 消息协议加密用的密钥
+    /// </summary>
+    public static byte[] MsgPrivateKey { get { return msgPrivateKey; } }
+    private static byte[] msgSecretKey = null;
+    /// <summary>
+    /// 消息协议加密用的对称密钥
+    /// </summary>
+    public static byte[] MsgSecretKey { get { return msgSecretKey; } }
+
     /// <summary>
     /// 与服务器的连接套接字
     /// </summary>
@@ -56,12 +69,12 @@ public class NetworkManager : MonoSingleton<NetworkManager>
     /// <summary>
     /// 消息缓存
     /// </summary>
-    private static MessageUtils messageUtils;
+    private static MessageBuffer messageBuffer;
 
     /// <summary>
     /// 消息处理方法的字典
     /// </summary>
-    private static Dictionary<int, Dictionary<int, Action<byte[]>>> protocolHandleDict;
+    private static Dictionary<int, Dictionary<int, Action<LuaByteBuffer>>> protocolHandleDict;
 
     /// <summary>
     /// 前台一直检测的消息队列
@@ -79,11 +92,18 @@ public class NetworkManager : MonoSingleton<NetworkManager>
     /// <summary>
     /// 心跳包发送时间
     /// </summary>
-    private const long pingInterval = 30;
+    public const long PING_INTERVAL = 30;
+
+    private bool isConnection = false;
     /// <summary>
-    /// 心跳包发送计时器
+    /// 是否连接到游戏服务器。在游戏重启之前，只要连接过服务器则为true
     /// </summary>
-    private float pingIntervalTimer = 0;
+    public bool IsConnection { get { return isConnection; } }
+
+    /// <summary>
+    /// 尝试连接次数
+    /// </summary>
+    private int connectionCount = 0;
 
     private void Update()
     {
@@ -95,7 +115,7 @@ public class NetworkManager : MonoSingleton<NetworkManager>
                 MsgQueue msgItem = msgFrontDeskQueue.Dequeue();
                 if (protocolHandleDict.ContainsKey(msgItem.HandleID))
                 {
-                    Dictionary<int, Action<byte[]>> dict = protocolHandleDict[msgItem.HandleID];
+                    Dictionary<int, Action<LuaByteBuffer>> dict = protocolHandleDict[msgItem.HandleID];
                     if (dict.ContainsKey(msgItem.HandleMethodID))
                     {
                         dict[msgItem.HandleMethodID].Invoke(msgItem.MsgByteArray);
@@ -111,24 +131,17 @@ public class NetworkManager : MonoSingleton<NetworkManager>
                 }
             }
         }
-
-        //心跳包
-        pingIntervalTimer += Time.deltaTime;
-        if (pingIntervalTimer > pingInterval)
-        {
-            //发送心跳包
-            SendLastPing();
-        }
     }
 
+    /// <summary>
+    /// 初始化NetworkManager这个管理器
+    /// </summary>
     public static void Init()
     {
-        NetworkManager.messageUtils = new MessageUtils();
-        protocolHandleDict = new Dictionary<int, Dictionary<int, Action<byte[]>>>();
+        NetworkManager.messageBuffer = new MessageBuffer();
+        protocolHandleDict = new Dictionary<int, Dictionary<int, Action<LuaByteBuffer>>>();
         msgFrontDeskQueue = new Queue<MsgQueue>();
         msgBackStageQueue = new Queue<MsgQueue>();
-        //添加所有协议
-        new Protocols();
 
         //开启后台线程处理后台消息队列
         backStageQueueThread = new Thread(BackStageQueueThreadAction);
@@ -142,11 +155,11 @@ public class NetworkManager : MonoSingleton<NetworkManager>
     /// <param name="handleID">协议处理类ID</param>
     /// <param name="handleMethodID">协议处理类中方法ID</param>
     /// <param name="msgAction">协议内容</param>
-    public static void AddProtocolHandle(int handleID, int handleMethodID, Action<byte[]> msgAction)
+    public static void AddProtocolHandle(int handleID, int handleMethodID, Action<LuaByteBuffer> msgAction)
     {
         if (protocolHandleDict.ContainsKey(handleID))
         {
-            Dictionary<int, Action<byte[]>> dict = protocolHandleDict[handleID];
+            Dictionary<int, Action<LuaByteBuffer>> dict = protocolHandleDict[handleID];
             if (dict.ContainsKey(handleMethodID))
             {
                 FDebugger.LogWarningFormat("在ID为[{0}]消息处理类中已经存在ID为[{1}]的消息处理方法", handleID, handleMethodID);
@@ -158,7 +171,7 @@ public class NetworkManager : MonoSingleton<NetworkManager>
         }
         else
         {
-            Dictionary<int, Action<byte[]>> dict = new Dictionary<int, Action<byte[]>>();
+            Dictionary<int, Action<LuaByteBuffer>> dict = new Dictionary<int, Action<LuaByteBuffer>>();
             dict.Add(handleMethodID, msgAction);
 
             protocolHandleDict.Add(handleID, dict);
@@ -174,6 +187,8 @@ public class NetworkManager : MonoSingleton<NetworkManager>
         IPAddress ipAddress = IPAddress.Parse(AppConst.IP);
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         socket.BeginConnect(ipAddress, AppConst.Port, OnConnectCallback, socket);
+
+        connectionCount++;
     }
 
     /// <summary>
@@ -187,8 +202,30 @@ public class NetworkManager : MonoSingleton<NetworkManager>
             Socket socket = ar.AsyncState as Socket;
             socket.EndConnect(ar);
 
-            socket.BeginReceive(messageUtils.Data, messageUtils.WriteIndex, messageUtils.Remain, SocketFlags.None, OnReceiveCallback, socket);
-            //连接成功后需要等待服务器返回密钥才能有后续操作
+            socket.BeginReceive(messageBuffer.Data, messageBuffer.WriteIndex, messageBuffer.Remain, SocketFlags.None, OnReceiveCallback, socket);
+
+            isConnection = true;
+
+            FDebugger.Log("服务器已连接");
+
+            //生成密钥对并发送给服务器
+            GenerateClientMsgSecretKeyPair();
+        }
+        catch(SocketException e)
+        {
+            if(connectionCount < 5)
+            {
+                FDebugger.LogWarningFormat("连接服务器失败，第{0}次尝试再次连接", connectionCount);
+                LoadingManager.Instance.SetProgressTextAsync(string.Format("连接服务器失败，第{0}次尝试再次连接", connectionCount));
+
+                Connection();
+            }
+            else
+            {
+                LoadingManager.Instance.SetProgressTextAsync(string.Format("无法连接到服务器，请稍后重试"));
+
+                FDebugger.LogError("无法连接到服务器，请稍后重试。错误信息：" + e.Message);
+            }
         }
         catch (Exception e)
         {
@@ -205,35 +242,65 @@ public class NetworkManager : MonoSingleton<NetworkManager>
         try
         {
             Socket socket = ar.AsyncState as Socket;
-            int count = socket.EndReceive(ar);
-            if(count != 0)
+
+            if (socket != null && socket.Connected)
             {
-                messageUtils.WriteIndex += count;
-                MessageUtils.DecodeMsg(messageUtils, out int protocolHandleID, out int protocolHandleMethodID, out byte[] msgByteArray);
-                MsgQueue queue = new MsgQueue(protocolHandleID, protocolHandleMethodID, msgByteArray);
-
-                //添加消息到待处理队列。根据处理类ID和处理方法ID手动区分是后台处理还是前台处理
-                //if (protocolHandleID == (int)MsgHandle.Ping && protocolHandleMethodID == (int)MsgPingMethod.Ping)
-                //{
-                //    //心跳处理协议，添加到后台
-                //    msgBackStageQueue.Enqueue(queue);
-                //}
-                //else
-                //{
-                lock (msgFrontDeskQueue)
+                int count = socket.EndReceive(ar);
+                if (count != 0)
                 {
-                    msgFrontDeskQueue.Enqueue(queue);
-                }
-                //}
+                    messageBuffer.WriteIndex += count;
 
-                //重新开始接收
-                if (socket != null && socket.Connected)
-                {
-                    socket.BeginReceive(messageUtils.Data, messageUtils.WriteIndex, messageUtils.Remain, SocketFlags.None, OnReceiveCallback, socket);
+                    //粘包分包处理
+                    while (messageBuffer.Length > 12)
+                    {
+                        bool decodeRes = MessageBuffer.DecodeMsg(messageBuffer, NetworkManager.MsgSecretKey, out int protocolHandleID, out int protocolHandleMethodID, out byte[] msg);
+                        if (decodeRes)
+                        {
+                            LuaByteBuffer byteArray = new LuaByteBuffer(msg);
+                            MsgQueue queue = new MsgQueue(protocolHandleID, protocolHandleMethodID, byteArray);
+                            //TODO：区分前台处理消息和后台处理消息。配置写到本地的config中
+                            lock (msgFrontDeskQueue)
+                            {
+                                msgFrontDeskQueue.Enqueue(queue);
+                            }
+                        }
+                        else
+                        {
+                            //消息不完整
+                            break;
+                        }
+                    }
+
+                    //如果缓冲区剩余空间太小则移动数据到开头
+                    if (messageBuffer.Remain <= 12)
+                    {
+                        messageBuffer.CheckAndMoveData();
+
+                        while (messageBuffer.Remain <= 0)
+                        {
+                            //当消息长度大于1024时，需要扩展缓冲区的大小
+                            int expandSize = messageBuffer.Length < MessageBuffer.DEFAULT_SIZE ? MessageBuffer.DEFAULT_SIZE : messageBuffer.Length;
+                            messageBuffer.ReSize(expandSize * 2);
+
+                            FDebugger.Log("扩展了一次缓冲区大小，当前大小为：" + expandSize * 2);
+                        }
+                    }
+
+                    //重新开始接收
+                    if (socket != null && socket.Connected)
+                    {
+                        socket.BeginReceive(messageBuffer.Data, messageBuffer.WriteIndex, messageBuffer.Remain, SocketFlags.None, OnReceiveCallback, socket);
+                    }
+                    else
+                    {
+                        FDebugger.Log("准备接收信息时连接已关闭");
+                    }
                 }
                 else
                 {
-                    FDebugger.Log("准备接收信息时连接已关闭");
+                    //服务器关闭了连接
+                    FDebugger.Log("服务器发送的数据长度为0，关闭了连接");
+                    Close();
                 }
             }
             else
@@ -243,12 +310,58 @@ public class NetworkManager : MonoSingleton<NetworkManager>
                 Close();
             }
         }
-        catch(Exception e)
+        catch(SocketException e)
         {
-            FDebugger.LogError("接收信息时发生异常：" + e.Message);
+            FDebugger.LogError("服务器关闭了连接，错误信息：" + e.Message);
+
+            GameManager.Instance.AddUpdateAction(SocketExceptionAction);
 
             return;
         }
+        catch(Exception e)
+        {
+            FDebugger.LogError("接收信息时发生异常，错误信息：" + e.Message);
+
+            GameManager.Instance.AddUpdateAction(ExceptionAction);
+
+            return;
+        }
+    }
+
+    /// <summary>
+    /// OnReceiveCallback回调函数中，捕获SocketException异常时调用函数
+    /// </summary>
+    private void SocketExceptionAction()
+    {
+        LuaFunction func = GameManager.LuaState.GetFunction("NetworkLuaManager.SocketException");
+        if(func != null)
+        {
+            func.Call("与服务器的连接已断开");
+        }
+        else
+        {
+            FDebugger.LogWarning("Lua端不存在NetworkLuaManager.SocketException方法");
+        }
+
+        GameManager.Instance.RemoveUpdateAction(SocketExceptionAction);
+    }
+
+    /// <summary>
+    /// OnReceiveCallback回调函数中，捕获Exception异常时调用函数
+    /// </summary>
+    private void ExceptionAction()
+    {
+        LuaFunction func = GameManager.LuaState.GetFunction("NetworkLuaManager.Exception");
+        if(func != null)
+        {
+            func.Call("接收信息时发生异常");
+        }
+        else
+        {
+            FDebugger.LogWarning("Lua端不存在NetworkLuaManager.Exception方法");
+        }
+
+        GameManager.Instance.RemoveUpdateAction(ExceptionAction);
     }
 
     /// <summary>
@@ -263,24 +376,47 @@ public class NetworkManager : MonoSingleton<NetworkManager>
     }
 
     /// <summary>
-    /// 发送消息到服务器
+    /// 从Lua中发送消息到服务器
     /// </summary>
     /// <param name="protocolHandleID"></param>
     /// <param name="protocolMethodID"></param>
-    /// <param name="msg"></param>
-    public void SendMsg(int protocolHandleID, int protocolMethodID, MsgBase msg)
+    /// <param name="bytes"></param>
+    public void SendMsgFromLua(int protocolHandleID, int protocolMethodID, LuaByteBuffer bytes)
     {
-        if(this.socket == null)
+        if (bytes.buffer.Length == 0)
+        {
+            FDebugger.LogWarningFormat("尝试发送一条空消息，处理ID为{0}，处理方法ID为{1}", protocolHandleID, protocolMethodID);
+
+            return;
+        }
+
+        if (this.socket == null)
         {
             FDebugger.LogError("socket为空，等待网络连接后再发送消息");
+
+            return;
         }
         if (!this.socket.Connected)
         {
             FDebugger.LogError("socket连接已断开，发送消息失败");
+
+            return;
         }
 
-        //以特定的格式组拼消息
-        byte[] data = MessageUtils.EncodeMsg(protocolHandleID, protocolMethodID, msg);
+        byte[] data = bytes.buffer;
+        //使用AES加密。如果是获取密钥的协议则使用公钥加密，否则使用密钥加密
+        if (protocolHandleID == 0 && protocolMethodID == 0)
+        {
+            data = AES.AESEncrypt(data, NetworkManager.PublicKey);
+        }
+        else
+        {
+            string msgSecretKeyString = DHExchange.GetString(NetworkManager.MsgSecretKey);
+            data = AES.AESEncrypt(data, msgSecretKeyString);
+        }
+
+        //消息组拼
+        data = MessageBuffer.EncodeMsg(protocolHandleID, protocolMethodID, data);
 
         try
         {
@@ -293,17 +429,6 @@ public class NetworkManager : MonoSingleton<NetworkManager>
     }
 
     /// <summary>
-    /// 发送消息到服务器
-    /// </summary>
-    /// <param name="protocolHandleID"></param>
-    /// <param name="protocolMethodID"></param>
-    /// <param name="msg"></param>
-    public void SendMsg(MsgBase msg)
-    {
-        SendMsg(msg.ProtocolHandleID, msg.ProtocolHandleMethodID, msg);
-    }
-
-    /// <summary>
     /// 设置密钥
     /// </summary>
     /// <param name="secretKey"></param>
@@ -313,29 +438,25 @@ public class NetworkManager : MonoSingleton<NetworkManager>
     }
 
     /// <summary>
-    /// 根据消息数组反序列化获取对象
+    /// 设置消息加密用的对称密钥
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="msgBytes"></param>
-    /// <returns></returns>
-    public static T GetObjectOfBytes<T>(byte[] msgBytes) where T : class
+    /// <param name="clientMsgPublicKey">客户端公钥</param>
+    public static void SetMsgSecretKey(string clientMsgPublicKey)
     {
-        T obj = null;
-        string msgJsonString = Encoding.UTF8.GetString(msgBytes);
-        try
-        {
-            obj = JsonMapper.ToObject<T>(msgJsonString);
-        }
-        catch(Exception e)
-        {
-            FDebugger.LogErrorFormat("反序列化Json串<{0}>出错：{1}", msgJsonString, e.Message);
-        }
-
-        return obj;
+        byte[] publicKeyByteArray = Convert.FromBase64String(clientMsgPublicKey);
+        NetworkManager.msgSecretKey = DHExchange.GenerateKeySecret(NetworkManager.MsgPrivateKey, publicKeyByteArray);
+    }
+    /// <summary>
+    /// 设置消息加密用的密钥
+    /// </summary>
+    /// <param name="msgPrivateKey"></param>
+    public static void SetMsgPrivateKey(byte[] msgPrivateKey)
+    {
+        NetworkManager.msgPrivateKey = msgPrivateKey;
     }
 
     /// <summary>
-    /// 后台执行的消息处理函数
+    /// 后台执行的消息处理函数。单独跑在一个线程中
     /// </summary>
     private static void BackStageQueueThreadAction()
     {
@@ -347,7 +468,7 @@ public class NetworkManager : MonoSingleton<NetworkManager>
                 MsgQueue msgItem = msgBackStageQueue.Dequeue();
                 if (protocolHandleDict.ContainsKey(msgItem.HandleID))
                 {
-                    Dictionary<int, Action<byte[]>> dict = protocolHandleDict[msgItem.HandleID];
+                    Dictionary<int, Action<LuaByteBuffer>> dict = protocolHandleDict[msgItem.HandleID];
                     if (dict.ContainsKey(msgItem.HandleMethodID))
                     {
                         dict[msgItem.HandleMethodID].Invoke(msgItem.MsgByteArray);
@@ -366,15 +487,29 @@ public class NetworkManager : MonoSingleton<NetworkManager>
     }
 
     /// <summary>
-    /// 发送心跳包
+    /// 生成客户端用于消息加密的密钥对并发送公钥给服务器
     /// </summary>
-    public void SendLastPing()
+    private void GenerateClientMsgSecretKeyPair()
     {
-        LastPing lastPing = new LastPing();
-        lastPing.lastPingTime = MessageUtils.GetTimeStamp();
-        NetworkManager.Instance.SendMsg(lastPing);
+        //生成客户端密钥对
+        byte[] clientSocketPrivateKey = new byte[DHExchange.DH_KEY_LENGTH];
+        byte[] clientSocketPublicKey = new byte[DHExchange.DH_KEY_LENGTH];
+        DHExchange.GenerateKeyPair(clientSocketPublicKey, clientSocketPrivateKey);
 
-        pingIntervalTimer = 0;
+        //保存私钥
+        SetMsgPrivateKey(clientSocketPrivateKey);
+
+        //发送公钥给服务器
+        LuaFunction mainAwakeFun = GameManager.LuaState.GetFunction("AwakeMain.SendPublicKeyRequest");
+        if (mainAwakeFun != null)
+        {
+            string publicKeyString = DHExchange.GetString(clientSocketPublicKey);
+            mainAwakeFun.Call(publicKeyString);
+        }
+        else
+        {
+            FDebugger.LogWarning("不存在Main.SendPublicKeyRequest()方法。该方法在Main方法之前调用，用于发送客户端公钥给服务器");
+        }
     }
 
     protected override void OnDestroy()

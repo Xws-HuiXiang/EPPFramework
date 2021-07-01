@@ -33,6 +33,7 @@ using UnityEngine;
 
 namespace LuaInterface
 {
+    [Serializable]
     public class LuaState : LuaStatePtr, IDisposable
     {
         public ObjectTranslator translator = new ObjectTranslator();
@@ -196,7 +197,11 @@ namespace LuaInterface
                 }
 
                 AddSearchPath(LuaConst.toluaDir);
-                AddSearchPath(LuaConst.luaDir);
+                //修改：如果是加载本地资源模式则添加，否则不添加这个目录
+                if (AppConst.LoadLoaclAssetBundle)
+                {
+                    AddSearchPath(LuaConst.luaDir);
+                }
 #endif
                 if (LuaFileUtils.Instance.GetType() == typeof(LuaFileUtils))
                 {
