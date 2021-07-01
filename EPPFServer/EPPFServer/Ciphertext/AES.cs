@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Ciphertext
 {
+    /// <summary>
+    /// AES加密算法
+    /// </summary>
     public class AES
     {
         private static string AESHead = "AESEncrypt";
@@ -137,7 +140,7 @@ namespace Ciphertext
         /// <summary>
         /// AES 加密(高级加密标准，是下一代的加密算法标准，速度快，安全级别高，目前 AES 标准的一个实现是 Rijndael 算法)
         /// </summary>
-        /// <param name="EncryptString">待加密密文</param>
+        /// <param name="EncryptByte">待加密密文</param>
         /// <param name="EncryptKey">加密密钥</param>
         public static byte[] AESEncrypt(byte[] EncryptByte, string EncryptKey)
         {
@@ -181,7 +184,7 @@ namespace Ciphertext
         /// <summary>
         /// AES 解密(高级加密标准，是下一代的加密算法标准，速度快，安全级别高，目前 AES 标准的一个实现是 Rijndael 算法)
         /// </summary>
-        /// <param name="DecryptString">待解密密文</param>
+        /// <param name="DecryptByte">待解密密文</param>
         /// <param name="DecryptKey">解密密钥</param>
         public static byte[] AESDecrypt(byte[] DecryptByte, string DecryptKey)
         {

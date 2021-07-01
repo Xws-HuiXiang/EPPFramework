@@ -44,3 +44,30 @@ F:\Visual Studio Projects\EPPFServer\EPPFServer\obj\Debug\netcoreapp3.0\EPPFServ
 F:\Visual Studio Projects\EPPFServer\EPPFServer\obj\Debug\netcoreapp3.0\EPPFServer.csproj.CopyComplete
 F:\Visual Studio Projects\EPPFServer\EPPFServer\obj\Debug\netcoreapp3.0\EPPFServer.dll
 F:\Visual Studio Projects\EPPFServer\EPPFServer\obj\Debug\netcoreapp3.0\EPPFServer.pdb
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\Log4net.config
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\EPPFServer.exe
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\EPPFServer.deps.json
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\EPPFServer.runtimeconfig.json
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\EPPFServer.runtimeconfig.dev.json
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\EPPFServer.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\EPPFServer.pdb
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\log4net.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\System.Configuration.ConfigurationManager.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\System.Security.Cryptography.ProtectedData.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\System.Security.Permissions.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\LitJson.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\obj\Debug\netcoreapp3.0\EPPFServer.csprojAssemblyReference.cache
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\obj\Debug\netcoreapp3.0\EPPFServer.AssemblyInfoInputs.cache
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\obj\Debug\netcoreapp3.0\EPPFServer.AssemblyInfo.cs
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\obj\Debug\netcoreapp3.0\EPPFServer.csproj.CopyComplete
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\obj\Debug\netcoreapp3.0\EPPFServer.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\obj\Debug\netcoreapp3.0\EPPFServer.pdb
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\Google.Protobuf.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\protobuf-net.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\protobuf-net.Core.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\System.Collections.Immutable.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\MySql.Data.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\BouncyCastle.Crypto.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\Renci.SshNet.dll
+F:\GitHubRepository\EPPFramework\EPPFServer\EPPFServer\bin\Debug\netcoreapp3.0\MySql.Data.xml

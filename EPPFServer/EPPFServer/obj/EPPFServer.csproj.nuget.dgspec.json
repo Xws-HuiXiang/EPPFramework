@@ -1,28 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\Visual Studio Projects\\EPPFServer\\EPPFServer\\EPPFServer.csproj": {}
+    "F:\\GitHubRepository\\EPPFramework\\EPPFServer\\EPPFServer\\EPPFServer.csproj": {}
   },
   "projects": {
-    "F:\\Visual Studio Projects\\EPPFServer\\CommonProtocol\\CommonProtocol.csproj": {
+    "F:\\GitHubRepository\\EPPFramework\\EPPFServer\\EPPFServer\\EPPFServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\Visual Studio Projects\\EPPFServer\\CommonProtocol\\CommonProtocol.csproj",
-        "projectName": "CommonProtocol",
-        "projectPath": "F:\\Visual Studio Projects\\EPPFServer\\CommonProtocol\\CommonProtocol.csproj"
-      },
-      "frameworks": {
-        "net472": {}
-      }
-    },
-    "F:\\Visual Studio Projects\\EPPFServer\\EPPFServer\\EPPFServer.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "F:\\Visual Studio Projects\\EPPFServer\\EPPFServer\\EPPFServer.csproj",
+        "projectUniqueName": "F:\\GitHubRepository\\EPPFramework\\EPPFServer\\EPPFServer\\EPPFServer.csproj",
         "projectName": "EPPFServer",
-        "projectPath": "F:\\Visual Studio Projects\\EPPFServer\\EPPFServer\\EPPFServer.csproj",
+        "projectPath": "F:\\GitHubRepository\\EPPFramework\\EPPFServer\\EPPFServer\\EPPFServer.csproj",
         "packagesPath": "C:\\Users\\79306\\.nuget\\packages\\",
-        "outputPath": "F:\\Visual Studio Projects\\EPPFServer\\EPPFServer\\obj\\",
+        "outputPath": "F:\\GitHubRepository\\EPPFramework\\EPPFServer\\EPPFServer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -41,11 +30,7 @@
         },
         "frameworks": {
           "netcoreapp3.0": {
-            "projectReferences": {
-              "F:\\Visual Studio Projects\\EPPFServer\\CommonProtocol\\CommonProtocol.csproj": {
-                "projectPath": "F:\\Visual Studio Projects\\EPPFServer\\CommonProtocol\\CommonProtocol.csproj"
-              }
-            }
+            "projectReferences": {}
           }
         },
         "warningProperties": {
@@ -57,9 +42,17 @@
       "frameworks": {
         "netcoreapp3.0": {
           "dependencies": {
+            "Google.Protobuf": {
+              "target": "Package",
+              "version": "[3.15.1, )"
+            },
             "log4net": {
               "target": "Package",
               "version": "[2.0.10, )"
+            },
+            "protobuf-net": {
+              "target": "Package",
+              "version": "[3.0.73, )"
             }
           },
           "imports": [
