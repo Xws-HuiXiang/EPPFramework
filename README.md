@@ -41,60 +41,7 @@
 
 在线上版本中检测热更新时，需要一个固定的目录结构：
 
-Root:
-├─Development
-│  ├─Android
-│  │  ├─Latest
-│  │  │  └─Lua2.zip
-│  │  │  └─Res1.zip
-│  │  ├─Lua
-│  │  │  └─Lua1.zip
-│  │  │  └─Lua2.zip
-│  │  ├─Res
-│  │  │  └─Res1.zip
-│  │  └─Scene
-│  │      ├─FirstScene
-│  │      │  └─1
-│  │      ├─GameScene
-│  │      │  └─1
-│  │      └─LoadingScene
-│  │          └─1
-│  ├─iOS
-│  │  ├─Latest
-│  │  ├─Lua
-│  │  ├─Res
-│  │  └─Scene
-│  │      ├─FirstScene
-│  │      │  └─1
-│  │      ├─GameScene
-│  │      │  └─1
-│  │      └─LoadingScene
-│  │          └─1
-│  ├─MacOS
-│  │  ├─Latest
-│  │  ├─Lua
-│  │  ├─Res
-│  │  └─Scene
-│  │      ├─FirstScene
-│  │      │  └─1
-│  │      ├─GameScene
-│  │      │  └─1
-│  │      └─LoadingScene
-│  │          └─1
-│  ├─Protos
-│  └─Windows
-│      ├─Latest
-│      ├─Lua
-│      ├─Res
-│      └─Scene
-│          ├─FirstScene
-│          │  └─1
-│          ├─GameScene
-│          │  └─1
-│          └─LoadingScene
-│              └─1
-└─Release
-        与Development目录结构相同
+![服务器目录结构](https://www.qinghuixiang.com/File/Github/EPPF%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.png)
 
 在对应平台名称的目录中，“Lua”、“Res”存放热更新的压缩包文件，名称为“Lua+热更新版本.zip"，Res同理。**注意一定要是zip压缩包，若要换格式自行修改压缩/解压缩相关库。**”Latest“文件夹中存放第一次启动游戏时下载的资源，命名与Res和Lua文件夹相同。
 
