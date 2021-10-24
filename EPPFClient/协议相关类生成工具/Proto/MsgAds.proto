@@ -1,0 +1,33 @@
+//广告相关的协议
+syntax = "proto3";
+
+package QiLieGuaner;
+
+//广告观看结果
+enum AdsShowResult{
+    //广告观看失败
+    Failed = 0;
+    //广告被跳过
+    Skipped = 1;
+    //广告观看完成
+    Finished = 2;
+}
+
+//Unity广告观看完成请求
+message UnityAdsWatchFinishRequest{
+    //玩家GUID
+    int32 playerGUID = 1;
+    //广告ID
+    string placementId = 2;
+    //广告观看结果
+    AdsShowResult result = 3;
+}
+
+//Unity广告观看完成响应
+message UnityAdsWatchFinishReceive{
+    //玩家GUID
+    int32 playerGUID = 1;
+    //当前玩家的金币数量
+    int32 goldCoinCount = 2;
+}
+

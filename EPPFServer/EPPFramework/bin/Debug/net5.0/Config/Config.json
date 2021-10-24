@@ -1,0 +1,15 @@
+{
+    "ResVersion": 1,
+	"LuaVersion": 1,
+	"DataBaseConnectionString": "server=127.0.0.1;port=3306;user=root;password=root;database=example;Allow User Variables=True;",
+	"ShowGameVersion": "1.0.0",
+	"LoadingTipsFilePath": "https://www.example.com/File/LoadingTips.txt",
+	"DefaultAvatarPath": "C:\\DefaultAvatar",
+	"Command": {
+		"Active": true,
+		"AutoOpenExe": true,
+		"CommandExePath": "file://F:/Projects/GameServerConsole/bin/Debug/net5.0/GameServerConsole.exe",
+		"IP": "127.0.0.1",
+		"Port": 1132
+	}
+}

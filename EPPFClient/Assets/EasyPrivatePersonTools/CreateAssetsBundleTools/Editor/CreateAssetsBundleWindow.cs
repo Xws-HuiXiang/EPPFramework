@@ -55,18 +55,18 @@ namespace EPPTools.CreateAssetsBundleTools
         /// <summary>
         /// 是否生成zip文件
         /// </summary>
-        [SerializeField]
-        private static bool generateZipFile;
+        //[SerializeField]
+        //private static bool generateZipFile;
         /// <summary>
         /// zip压缩文件密码
         /// </summary>
-        [SerializeField]
-        private static string zipFilePassword;
+        //[SerializeField]
+        //private static string zipFilePassword;
         /// <summary>
         /// zip文件保存路径
         /// </summary>
-        [SerializeField]
-        private static string zipOutPutPath;
+        //[SerializeField]
+        //private static string zipOutPutPath;
 
         /// <summary>
         /// 统一bundle的名称
@@ -102,11 +102,11 @@ namespace EPPTools.CreateAssetsBundleTools
         /// <summary>
         /// 热更新资源版本
         /// </summary>
-        private static int resHotfixVersion;
+        //private static int resHotfixVersion;
         /// <summary>
         /// 热更新代码版本
         /// </summary>
-        private static int luaHotfixVersion;
+        //private static int luaHotfixVersion;
 
         [MenuItem("EPP Tools/Create Assets Bundle")]
         public static void OpenWindow()
@@ -125,14 +125,14 @@ namespace EPPTools.CreateAssetsBundleTools
             //toLuaTargetFolderRootFolder = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.toLuaTargetFolderRootFolder;
             packageRes = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.packageRes;
             packageLuaCode = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.packageLuaCode;
-            generateZipFile = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.generateZipFile;
+            //generateZipFile = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.generateZipFile;
             //zipFileSavePath = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.zipOutPutPath;
             toLuaTargetFolderRootFolder = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.toLuaTargetFolderRootFolder;
-            zipFilePassword = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.zipFilePassword;
-            zipOutPutPath = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.zipOutPutPath;
+            //zipFilePassword = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.zipFilePassword;
+            //zipOutPutPath = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.zipOutPutPath;
             luaOutPutPath = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.luaOutPutPath;
-            resHotfixVersion = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.resHotfixVersion;
-            luaHotfixVersion = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.luaHotfixVersion;
+            //resHotfixVersion = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.resHotfixVersion;
+            //luaHotfixVersion = EPPToolsSettingAsset.Instance.CreateAssetsBundleConfig.luaHotfixVersion;
 
             window.Show();
         }
@@ -170,17 +170,17 @@ namespace EPPTools.CreateAssetsBundleTools
                     {
                         PickUpPathButtonGUI("lua文件保存路径", ref luaOutPutPath);
                     }
-                    generateZipFile = EditorGUILayout.ToggleLeft("生成zip文件", generateZipFile);
-                    if (generateZipFile)
-                    {
-                        zipFilePassword = EditorGUILayout.TextField("zip文件密码", zipFilePassword);
-                        PickUpPathButtonGUI("zip文件保存路径", ref zipOutPutPath);
-                    }
+                    //generateZipFile = EditorGUILayout.ToggleLeft("生成zip文件", generateZipFile);
+                    //if (generateZipFile)
+                    //{
+                        //zipFilePassword = EditorGUILayout.TextField("zip文件密码", zipFilePassword);
+                        //PickUpPathButtonGUI("zip文件保存路径", ref zipOutPutPath);
+                    //}
                     break;
             }
             PickUpPathButtonGUI("ab包保存路径", ref outPutPath);
-            resHotfixVersion = EditorGUILayout.IntField("热更新资源版本", resHotfixVersion);
-            luaHotfixVersion = EditorGUILayout.IntField("热更新代码版本", luaHotfixVersion);
+            //resHotfixVersion = EditorGUILayout.IntField("热更新资源版本", resHotfixVersion);
+            //luaHotfixVersion = EditorGUILayout.IntField("热更新代码版本", luaHotfixVersion);
 
             suffixName = EditorGUILayout.TextField("后缀名", suffixName);
             buildAssetBundleOptions = (BuildAssetBundleOptions)EditorGUILayout.EnumPopup("压缩方式", buildAssetBundleOptions);
@@ -191,12 +191,11 @@ namespace EPPTools.CreateAssetsBundleTools
                 List<string> ignoreFolderList = new List<string>() { ".idea" };
                 List<string> ignoreFileList = new List<string>() { ".meta" };
 
+                //打包资源
                 if (packageRes)
                 {
-                    //打包资源
                     //清理文件夹
-                    ClearFolder(Application.dataPath + outPutPath.Substring(6));
-
+                    ClearFolder(Path.Combine(Application.dataPath, outPutPath.Substring(6)));
                     //单独处理分文件夹打包的情况
                     if (buildBundleFunction == BuildBundleFunction.DistributedFolder)
                     {
@@ -222,29 +221,6 @@ namespace EPPTools.CreateAssetsBundleTools
                 //Lua代码部分
                 PackageLua(ignoreFileList, ignoreFolderList);
 
-                /*
-                if (generateZipFile)
-                {
-                    if (!Directory.Exists(zipOutPutPath))
-                    {
-                        Directory.CreateDirectory(zipOutPutPath);
-                    }
-
-                    //资源的zip包
-                    string zipPath = Application.dataPath + zipOutPutPath.Substring(6) + "/" + hotfixVersion.ToString();
-                    if (!Directory.Exists(zipPath))
-                    {
-                        Directory.CreateDirectory(zipPath);
-                    }
-                    string assetZIPName = zipPath + "/Res_" + System.DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss") + ".zip";
-                    ZIPFileUtil.CreateZIPFile(assetZIPName, Application.dataPath + outPutPath.Substring(6), zipFilePassword, null);
-                    //lua代码的zip包
-                    string luaZIPName = zipPath + "/Lua_" + System.DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss") + ".zip";
-                    ZIPFileUtil.CreateZIPFile(luaZIPName, Application.dataPath + luaOutPutPath.Substring(6), zipFilePassword, null);
-                }
-                */
-
-
                 SaveConfig();
 
                 AssetDatabase.Refresh();
@@ -260,7 +236,7 @@ namespace EPPTools.CreateAssetsBundleTools
         /// <param name="abName">ab包的名称。如果为null则使用资源所在的文件夹名称</param>
         private void ResetAssetsBundleName(string rootFolder, string abName)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(Application.dataPath + rootFolder.Substring(6));
+            DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(Application.dataPath, rootFolder.Substring(7)));
             DirectoryInfo[] childDirectoryInfos = directoryInfo.GetDirectories();
 
             //清理包名称
@@ -281,7 +257,7 @@ namespace EPPTools.CreateAssetsBundleTools
                     }
                     bundleName += suffixName;
                 }
-                SetAssetBundleName(rootFolder + "\\" + childDirectoryInfos[i].Name, bundleName);
+                SetAssetBundleName(Path.Combine(rootFolder, childDirectoryInfos[i].Name), bundleName);
             }
         }
 
@@ -296,7 +272,7 @@ namespace EPPTools.CreateAssetsBundleTools
             string[] arr = bundlesName.Split('.');
 
             //遍历文件夹下的所有文件并设置包名
-            DirectoryInfo directoryInfo = new DirectoryInfo(Application.dataPath + rootFolderPath.Substring(6));
+            DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(Application.dataPath, rootFolderPath.Substring(7)));
             //获取所有文件
             FileInfo[] files = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories);
             List<string> filePathList = new List<string>();
@@ -304,7 +280,7 @@ namespace EPPTools.CreateAssetsBundleTools
             {
                 //处理文件路径为unity工程内的局部路径
                 string fileFullName = files[i].FullName;
-                int startIndex = fileFullName.IndexOf("Assets\\");
+                int startIndex = fileFullName.IndexOf("Assets" + Path.DirectorySeparatorChar);
                 string localPath = "";
                 if (startIndex != -1)
                 {
@@ -353,6 +329,8 @@ namespace EPPTools.CreateAssetsBundleTools
         /// <param name="dir"></param>
         private void ClearFolder(string dir)
         {
+            if (!Directory.Exists(dir)) return;
+
             foreach (string d in Directory.GetFileSystemEntries(dir))
             {
                 if (File.Exists(d))
@@ -423,12 +401,12 @@ namespace EPPTools.CreateAssetsBundleTools
             config.toLuaTargetFolderRootFolder = toLuaTargetFolderRootFolder;
             config.packageRes = packageRes;
             config.packageLuaCode = packageLuaCode;
-            config.generateZipFile = generateZipFile;
-            config.zipOutPutPath = zipOutPutPath;
+            //config.generateZipFile = generateZipFile;
+            //config.zipOutPutPath = zipOutPutPath;
             config.luaOutPutPath = luaOutPutPath;
-            config.zipFilePassword = zipFilePassword;
-            config.resHotfixVersion = resHotfixVersion;
-            config.luaHotfixVersion = luaHotfixVersion;
+            //config.zipFilePassword = zipFilePassword;
+            //config.resHotfixVersion = resHotfixVersion;
+            //config.luaHotfixVersion = luaHotfixVersion;
 
             EPPToolsSettingAsset.Instance.SetCreateAssetsBundleConfig(config);
         }
@@ -440,8 +418,8 @@ namespace EPPTools.CreateAssetsBundleTools
         private void PackageRes(List<string> ignoreFileList)
         {
             //对ab包使用AES加密处理。先复制一份出来用于加密
-            string resFullPath = Application.dataPath + outPutPath.Substring(6);
-            string targetFullPath = Path.Combine(Application.dataPath, "AssetBundle", "AESEncryption");
+            string resFullPath = Path.Combine(Application.dataPath, outPutPath.Substring(7));
+            string targetFullPath = Path.Combine(Application.dataPath, "AssetBundle", "AESEncryption", "Res");
             DirectoryUtils.CopyDirectory(resFullPath, targetFullPath, ignoreFileList, null);
             //不加密AssetBundle文件
             string[] targetFolderFiles = Directory.GetFiles(targetFullPath, "*.*", SearchOption.AllDirectories).Where(
@@ -471,14 +449,6 @@ namespace EPPTools.CreateAssetsBundleTools
                 fs.Write(encryptionBytes, 0, encryptionBytes.Length);
                 fs.Close();
             }
-
-            //拷贝加密后的文件到Assets文件夹外面
-            string resPathOutAssetsPath = Application.dataPath;
-            resPathOutAssetsPath = Path.Combine(resPathOutAssetsPath.Substring(0, resPathOutAssetsPath.Length - 6), "Resource", buildTarget.ToString(), resHotfixVersion.ToString(), "Res" + resHotfixVersion.ToString());
-            resPathOutAssetsPath = resPathOutAssetsPath.Replace("/", "\\");
-            DirectoryUtils.CopyDirectory(targetFullPath, resPathOutAssetsPath, ignoreFileList, null);
-
-            CheckMD5(resPathOutAssetsPath, resHotfixVersion, "Res");
         }
 
         /// <summary>
@@ -501,29 +471,19 @@ namespace EPPTools.CreateAssetsBundleTools
                 DirectoryUtils.CopyDirectory(toLuaTargetFolderRootFolder, luaOutPutPath, ignoreFileList, ignoreFolderList, true);
             }
 
-            //System.Diagnostics.Process.Start("explorer.exe", resPathOutAssetsPath);
-
-            string luaPathOutAssetsPath = Application.dataPath;
-            luaPathOutAssetsPath = Path.Combine(luaPathOutAssetsPath.Substring(0, luaPathOutAssetsPath.Length - 6), "Resource", buildTarget.ToString(), luaHotfixVersion.ToString(), "Lua" + luaHotfixVersion.ToString());
-            luaPathOutAssetsPath = luaPathOutAssetsPath.Replace("/", "\\");
-
-            DirectoryUtils.CopyDirectory(luaOutPutPath, luaPathOutAssetsPath, ignoreFileList, ignoreFolderList);
-
             //使用AES加密
-            string[] luaFilesFullPath = Directory.GetFiles(luaPathOutAssetsPath, "*.lua", SearchOption.AllDirectories);
-            for(int i = 0; i < luaFilesFullPath.Length; i++)
+            string[] luaFilesFullPath = Directory.GetFiles(luaOutPutPath, "*.lua", SearchOption.AllDirectories);
+            for (int i = 0; i < luaFilesFullPath.Length; i++)
             {
                 byte[] data = File.ReadAllBytes(luaFilesFullPath[i]);
                 data = AES.AESEncrypt(data, AppConst.AbPackageKey);
-                
+
                 File.Delete(luaFilesFullPath[i]);
                 string newFileFullPath = luaFilesFullPath[i].Substring(0, luaFilesFullPath[i].Length - 4) + AppConst.EncryptionFillSuffix;
                 FileStream fs = File.Create(newFileFullPath);
                 fs.Write(data, 0, data.Length);
                 fs.Close();
             }
-
-            CheckMD5(luaPathOutAssetsPath, luaHotfixVersion, "Lua");
         }
 
         /// <summary>
@@ -532,6 +492,7 @@ namespace EPPTools.CreateAssetsBundleTools
         /// <param name="outAssetPath"></param>
         /// <param name="hotfixVersion"></param>
         /// <param name="folderName"></param>
+        [Obsolete("不在Unity中处理MD5值校验与版本管理，需要使用提供的额外工具进行版本控制")]
         private void CheckMD5(string outAssetPath, int hotfixVersion, string folderName)
         {
             //对比之前版本的文件，决定是否剔除。版本号大于1才有之前的版本文件信息

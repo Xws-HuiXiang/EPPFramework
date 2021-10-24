@@ -8,22 +8,7 @@ this.ConfigListField = {
     ---用户名
     Username = "Username",
     ---密码
-    Password = "Password",
-
-    ---背景音乐是否静音
-    AudioBGMIsMute = "AudioBGMIsMute",
-    ---背景音乐音量
-    AudioBGMVolume = "AudioBGMVolume",
-    ---音效是否静音
-    AudioEffectIsMute = "AudioEffectIsMute",
-    ---音效音乐音量
-    AudioEffectVolume = "AudioEffectVolume",
-
-    ---跑马灯是否在游戏时显示
-    ShowPaoMaDengInGame = "ShowPaoMaDengInGame",
-
-    ---快捷语列表
-    QuickPhraseList = "QuickPhraseList"
+    Password = "Password"
 };
 
 ---设置配置项。方法内会先加密再写入文件

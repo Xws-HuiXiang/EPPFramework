@@ -1,0 +1,64 @@
+{
+	"Syntax": "proto3",
+	"Package": "Example",
+	"Namespace": "EPPFramework.Protocol.Builder",
+	"HandleID": "Common",
+	"HandleIDValue": 0,
+	"FileName": "MsgCommon",
+	"HandleDescription": "配置协议的例子",
+	"Message": [
+		{
+			"HandleMethodID": "SecretKeyRequest",
+			"HandleMethodIDValue": 0,
+			"HandleMethodDescription": "获取密钥请求",
+			"UsePublicKey": true,
+			"Parameters": [
+				{
+					"Name": "publicKey",
+					"ProtoType": "string",
+					"SerializeTag": 1,
+					"Description": "客户端的消息公钥"
+				}
+			]
+		},
+		{
+			"HandleMethodID": "SecretKeyReceive",
+			"HandleMethodIDValue": 1,
+			"HandleMethodDescription": "获取密钥响应",
+			"UsePublicKey": true,
+			"Parameters": [
+				{
+					"Name": "secretKey",
+					"ProtoType": "string",
+					"SerializeTag": 1,
+					"Description": "密钥内容"
+				},
+				{
+					"Name": "msgPublicKey",
+					"ProtoType": "string",
+					"SerializeTag": 2,
+					"Description": "服务端消息公钥"
+				}
+			]
+		},
+		{
+			"HandleMethodID": "HeartbeatRequest",
+			"HandleMethodIDValue": 2,
+			"HandleMethodDescription": "心跳包请求",
+			"Parameters": [
+				{
+					"Name": "pingTime",
+					"ProtoType": "int64",
+					"SerializeTag": 1,
+					"Description": "时间戳"
+				}
+			]
+		},
+		{
+			"HandleMethodID": "HeartbeatReceive",
+			"HandleMethodIDValue": 3,
+			"HandleMethodDescription": "心跳包响应",
+			"Parameters": []
+		}
+	]
+}

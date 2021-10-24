@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29509.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EPPFrameworkServer", "EPPFramework\EPPFrameworkServer.csproj", "{141B6B7A-A651-468D-8A89-BA67B274212E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServerConsole", "GameServerConsole\GameServerConsole.csproj", "{0BE4A47E-976B-49F1-89CA-C3BCBC80C1BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{141B6B7A-A651-468D-8A89-BA67B274212E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{141B6B7A-A651-468D-8A89-BA67B274212E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{141B6B7A-A651-468D-8A89-BA67B274212E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{141B6B7A-A651-468D-8A89-BA67B274212E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BE4A47E-976B-49F1-89CA-C3BCBC80C1BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BE4A47E-976B-49F1-89CA-C3BCBC80C1BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BE4A47E-976B-49F1-89CA-C3BCBC80C1BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BE4A47E-976B-49F1-89CA-C3BCBC80C1BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CC907E9E-427F-4C51-8BBE-279CEE728C5C}
+	EndGlobalSection
+EndGlobal

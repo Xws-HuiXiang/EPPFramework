@@ -208,32 +208,6 @@ public class ResourcesManager : MonoSingleton<ResourcesManager>
             return obj;
         }
 #endif
-        //string abFullName = CheckAssetBundleName(assetBundleName);
-        //abFullName = Path.Combine(AppConst.LocalResRootFolderPath, abFullName);
-        //abFullName = abFullName.Replace("/", "\\");
-        //T assets = null;
-        //if(allAssetBundlesArray != null)
-        //{
-        //    string keyName = assetBundleName;
-        //    if (!assetBundleName.EndsWith(AppConst.AssetBundleSuffix))
-        //    {
-        //        keyName += AppConst.AssetBundleSuffix;
-        //    }
-        //    for (int i = 0; i < allAssetBundlesArray.Length; i++)
-        //    {
-        //        AssetBundle assetBundle = allAssetBundlesArray[i];
-        //        //忽略大小写，因为ab包名均为小写
-        //        if (string.Equals(assetBundle.name, keyName, StringComparison.OrdinalIgnoreCase))
-        //        {
-        //            assets = assetBundle.LoadAsset<T>(assetsName);
-        //            if (assets == null)
-        //            {
-        //                FDebugger.LogWarningFormat("未在包{0}中找到名为{1}的资源", keyName, assetsName);
-        //            }
-        //        }
-        //    }
-        //}
-
         T assets = null;
         if (CheckAbLoaded(assetBundleName, out AssetBundle ab))
         {
@@ -305,7 +279,17 @@ public class ResourcesManager : MonoSingleton<ResourcesManager>
     {
         string abFullName = CheckAssetBundleName(assetBundleName);
         abFullName = Path.Combine(AppConst.LocalResRootFolderPath, abFullName);
-        abFullName = abFullName.Replace("/", "\\");
+//#if UNITY_EDITOR_OSX
+//        abFullName = abFullName.Replace("\\", "/");
+//#elif UNITY_STANDALONE
+//        abFullName = abFullName.Replace("/", "\\");
+//#elif UNITY_ANDROID
+//        abFullName = abFullName.Replace("\\", "/");
+//#elif UNITY_IOS
+//        abFullName = abFullName.Replace("/", "\\");
+//#else
+//        abFullName = abFullName.Replace("/", "\\");
+//#endif
 
         return abFullName;
     }
@@ -343,17 +327,16 @@ public class ResourcesManager : MonoSingleton<ResourcesManager>
     public AssetBundle LoadABRes(string assetBundleName)
     {
         AssetBundle ab = null;
-        string abFullPath = GetABFullPath(assetBundleName);
-        if (abFullPath.EndsWith(AppConst.EncryptionFillSuffix))
+        if (assetBundleName.EndsWith(AppConst.EncryptionFillSuffix))
         {
             //如果是manifest文件，则跳过
-            if (abFullPath.EndsWith(".manifest" + AppConst.EncryptionFillSuffix))
+            if (assetBundleName.EndsWith(".manifest" + AppConst.EncryptionFillSuffix))
             {
                 return null;
             }
 
             //文件是以对应的后缀名结尾，先解密
-            byte[] encryptionContent = File.ReadAllBytes(abFullPath);
+            byte[] encryptionContent = File.ReadAllBytes(assetBundleName);
             byte[] abFileBytes = AES.AESDecrypt(encryptionContent, AppConst.AbPackageKey);
             //根据byte加载ab包
             try
@@ -370,12 +353,12 @@ public class ResourcesManager : MonoSingleton<ResourcesManager>
             //不是对应后缀名的文件，尝试直接加载ab
             try
             {
-                byte[] abFileBytes = File.ReadAllBytes(abFullPath);
+                byte[] abFileBytes = File.ReadAllBytes(assetBundleName);
                 ab = AssetBundle.LoadFromMemory(abFileBytes);
             }
             catch (Exception e)
             {
-                FDebugger.LogErrorFormat("加载ab时遇到一个错误。尝试加载的文件既不是加密文件也不是unity未加密的标准ab文件。错误信息：", e.Message);
+                FDebugger.LogErrorFormat("加载ab时遇到一个错误。尝试加载的文件既不是加密文件也不是unity未加密的标准ab文件。文件名：{0}。错误信息：{1}", assetBundleName, e.Message);
             }
         }
 
@@ -428,9 +411,12 @@ public class ResourcesManager : MonoSingleton<ResourcesManager>
         {
             abFullName = Path.Combine(AppConst.LocalResRootFolderPath, "AssetBundle");
         }
-        abFullName = abFullName.Replace("/", "\\");
+        //abFullName = abFullName.Replace("/", "\\");
 
-        AssetBundle manifestAssetBundle = AssetBundle.LoadFromFile(abFullName);
-        allBundleManifest = (AssetBundleManifest)manifestAssetBundle.LoadAsset("AssetBundleManifest");
+        if (File.Exists(abFullName))
+        {
+            AssetBundle manifestAssetBundle = AssetBundle.LoadFromFile(abFullName);
+            allBundleManifest = (AssetBundleManifest)manifestAssetBundle.LoadAsset("AssetBundleManifest");
+        }
     }
 }

@@ -3,6 +3,12 @@ local this = Panel;
 
 --打开指定名称的面板
 function this.OpenPanel(ctrlName)
+    if(ctrlName == nil or ctrlName == "")then
+        FDebugger.LogWarning("打开面板时提供的名称为空");
+
+        return;
+    end
+
     CtrlLuaManager.CtrlList[ctrlName].OpenPanel();
 end
 

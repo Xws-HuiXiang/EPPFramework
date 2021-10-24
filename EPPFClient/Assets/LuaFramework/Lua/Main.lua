@@ -15,15 +15,12 @@ function this.Main()
 
     --初始化一些东西
     CtrlLuaManager.New();
-    UnityAdsLuaManager.Init();
-    --按钮音效
-    GameLuaManager.ButtonAudioClip = ResourcesManager.Instance:GetAudioClipFromAssetBundle("AudioEffect", "ButtonEffect");
+    --UnityAda初始化
+    --UnityAdsLuaManager.Init();
 
     --添加所有协议处理方法
     NetworkLuaManager.AddProtocolHandles();
-    --初始化游戏的规则信息
-    GameLuaManager.InitAllGameRule();
 
-    --创建登陆面板
-    Panel.OpenPanel(CtrlNames.loginCtrl);
+    --创建例子的第一个面板
+    Panel.OpenPanel(CtrlNames.theFirstCtrl);
 end

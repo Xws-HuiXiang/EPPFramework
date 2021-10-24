@@ -11,10 +11,10 @@ function this.CopyToClipboard(str)
     local platformName = AppConst.GetPlatformName();
     if(platformName == this.Windows)then
         UnityEngine.GUIUtility.systemCopyBuffer = str;
-        TipText.ShowTipText("复制房间ID成功");
+        TipText.ShowTipText("复制成功:" .. str);
     elseif platformName == this.Editor then
         UnityEngine.GUIUtility.systemCopyBuffer = str;
-        TipText.ShowTipText("复制房间ID成功");
+        TipText.ShowTipText("复制成功:" .. str);
     elseif platformName == this.Android then
         AndroidManager.Instance:CopyToClipboard(str);
     elseif platformName == this.IOS then

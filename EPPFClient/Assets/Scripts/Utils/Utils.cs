@@ -1,4 +1,5 @@
-﻿using LuaInterface;
+﻿using DG.Tweening;
+using LuaInterface;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -342,5 +343,30 @@ public static class Utils
         rectTrans.gameObject.SetActive(true);
 
         return rectTrans;
+    }
+
+    /// <summary>
+    /// DOTween的To方法封装
+    /// </summary>
+    /// <param name="getter"></param>
+    /// <param name="setter"></param>
+    /// <param name="endValue"></param>
+    /// <param name="duration"></param>
+    /// <returns></returns>
+    public static Tweener DOTweenTo(Func<float> getter, Action<float> setter, float endValue, float duration)
+    {
+        return DOTween.To(() => { float value = getter.Invoke(); return value; }, (v) => { setter.Invoke(v); }, endValue, duration);
+    }
+
+    /// <summary>
+    /// 清空持久化目录中的文件
+    /// </summary>
+    public static void ClearPersistentDataFolder()
+    {
+        string[] files = Directory.GetFiles(Application.persistentDataPath, "*.*", SearchOption.AllDirectories);
+        for (int i = 0; i < files.Length; i++)
+        {
+            File.Delete(files[i]);
+        }
     }
 }

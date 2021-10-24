@@ -15,6 +15,7 @@ public class AppConstWrap
 		L.RegFunction("__tostring", ToLua.op_ToString);
 		L.RegVar("DEVELOPMENT_STRING", get_DEVELOPMENT_STRING, null);
 		L.RegVar("RELEASE_STRING", get_RELEASE_STRING, null);
+		L.RegVar("ROOT_URL", get_ROOT_URL, null);
 		L.RegVar("ResString", get_ResString, null);
 		L.RegVar("LuaString", get_LuaString, null);
 		L.RegVar("DevMode", get_DevMode, null);
@@ -26,6 +27,7 @@ public class AppConstWrap
 		L.RegVar("HttpIP", get_HttpIP, null);
 		L.RegVar("Port", get_Port, null);
 		L.RegVar("HttpRequestPort", get_HttpRequestPort, null);
+		L.RegVar("ServerLatestURL", get_ServerLatestURL, null);
 		L.RegVar("ServerResURL", get_ServerResURL, null);
 		L.RegVar("ServerLuaURL", get_ServerLuaURL, null);
 		L.RegVar("ServerConfigURL", get_ServerConfigURL, null);
@@ -155,6 +157,20 @@ public class AppConstWrap
 		try
 		{
 			LuaDLL.lua_pushstring(L, AppConst.RELEASE_STRING);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_ROOT_URL(IntPtr L)
+	{
+		try
+		{
+			LuaDLL.lua_pushstring(L, AppConst.ROOT_URL);
 			return 1;
 		}
 		catch (Exception e)
@@ -309,6 +325,20 @@ public class AppConstWrap
 		try
 		{
 			LuaDLL.lua_pushinteger(L, AppConst.HttpRequestPort);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_ServerLatestURL(IntPtr L)
+	{
+		try
+		{
+			LuaDLL.lua_pushstring(L, AppConst.ServerLatestURL);
 			return 1;
 		}
 		catch (Exception e)

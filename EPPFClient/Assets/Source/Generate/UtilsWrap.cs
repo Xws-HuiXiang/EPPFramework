@@ -23,6 +23,8 @@ public class UtilsWrap
 		L.RegFunction("GetTimeStampString", GetTimeStampString);
 		L.RegFunction("CreateTopUICamera", CreateTopUICamera);
 		L.RegFunction("CreateUIGameObject", CreateUIGameObject);
+		L.RegFunction("DOTweenTo", DOTweenTo);
+		L.RegFunction("ClearPersistentDataFolder", ClearPersistentDataFolder);
 		L.EndStaticLibs();
 	}
 
@@ -337,6 +339,41 @@ public class UtilsWrap
 			UnityEngine.RectTransform o = Utils.CreateUIGameObject(arg0, arg1);
 			ToLua.PushSealed(L, o);
 			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int DOTweenTo(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 4);
+			System.Func<float> arg0 = (System.Func<float>)ToLua.CheckDelegate<System.Func<float>>(L, 1);
+			System.Action<float> arg1 = (System.Action<float>)ToLua.CheckDelegate<System.Action<float>>(L, 2);
+			float arg2 = (float)LuaDLL.luaL_checknumber(L, 3);
+			float arg3 = (float)LuaDLL.luaL_checknumber(L, 4);
+			DG.Tweening.Tweener o = Utils.DOTweenTo(arg0, arg1, arg2, arg3);
+			ToLua.PushObject(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int ClearPersistentDataFolder(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 0);
+			Utils.ClearPersistentDataFolder();
+			return 0;
 		}
 		catch (Exception e)
 		{

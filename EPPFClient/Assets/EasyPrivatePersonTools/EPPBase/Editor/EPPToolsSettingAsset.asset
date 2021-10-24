@@ -113,12 +113,12 @@ MonoBehaviour:
     toLuaTargetFolderRootFolder: Assets/ToLua/Lua
     packageRes: 1
     packageLuaCode: 1
-    generateZipFile: 1
-    zipOutPutPath: Assets/AssetBundle/Zip
-    luaOutPutPath: Assets/AssetBundle/Lua
-    zipFilePassword: UNO
-    resHotfixVersion: 1
-    luaHotfixVersion: 1
+    generateZipFile: 0
+    zipOutPutPath: 
+    luaOutPutPath: Assets/AssetBundle/AESEncryption/Lua
+    zipFilePassword: 
+    resHotfixVersion: 0
+    luaHotfixVersion: 0
   createToLuaTemplateFileConfig:
     ctrlFilePath: Assets/LuaFramework/Lua/Ctrl
     panelFilePath: Assets/LuaFramework/Lua/View
@@ -130,5 +130,5 @@ MonoBehaviour:
     createCtrlFile: 1
     createPanelFile: 1
     writeInClipboard: 0
-    assetBundleName: MainPage
+    assetBundleName: Example
     attachObjectListFoldout: 1

@@ -1,0 +1,78 @@
+{
+	"Syntax": "proto3",
+	"Package": "QiLieGuaner",
+	"Namespace": "MengHeGameServer.Protocol.Builder",
+	"HandleID": "Ads",
+	"HandleIDValue": 8,
+	"FileName": "MsgAds",
+	"HandleDescription": "广告相关的协议",
+	"MessageEnum": [
+		{
+			"EnumName": "AdsShowResult",
+			"EnumDescription": "广告观看结果",
+			"EnumItem": [
+				{
+					"EnumItemName": "Failed",
+					"EnumItemValue": 0,
+					"EnumItemDescription": "广告观看失败"
+				},
+				{
+					"EnumItemName": "Skipped",
+					"EnumItemValue": 1,
+					"EnumItemDescription": "广告被跳过"
+				},
+				{
+					"EnumItemName": "Finished",
+					"EnumItemValue": 2,
+					"EnumItemDescription": "广告观看完成"
+				}
+			]
+		}
+	],
+	"Message": [
+		{
+			"HandleMethodID": "UnityAdsWatchFinishRequest",
+			"HandleMethodIDValue": 0,
+			"HandleMethodDescription": "Unity广告观看完成请求",
+			"Parameters": [
+				{
+					"Name": "playerGUID",
+					"ProtoType": "int32",
+					"SerializeTag": 1,
+					"Description": "玩家GUID"
+				},
+				{
+					"Name": "placementId",
+					"ProtoType": "string",
+					"SerializeTag": 2,
+					"Description": "广告ID"
+				},
+				{
+					"Name": "result",
+					"ProtoType": "AdsShowResult",
+					"SerializeTag": 3,
+					"Description": "广告观看结果"
+				}
+			]
+		},
+		{
+			"HandleMethodID": "UnityAdsWatchFinishReceive",
+			"HandleMethodIDValue": 1,
+			"HandleMethodDescription": "Unity广告观看完成响应",
+			"Parameters": [
+				{
+					"Name": "playerGUID",
+					"ProtoType": "int32",
+					"SerializeTag": 1,
+					"Description": "玩家GUID"
+				},
+				{
+					"Name": "goldCoinCount",
+					"ProtoType": "int32",
+					"SerializeTag": 2,
+					"Description": "当前玩家的金币数量"
+				}
+			]
+		}
+	]
+}

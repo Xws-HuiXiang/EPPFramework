@@ -50,6 +50,11 @@ public class DownloadManager : MonoSingleton<DownloadManager>
     /// </summary>
     private static bool downloadingNow = false;
 
+    private void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
+
     private void Update()
     {
         if(nowHotfixDownloadingAction != null && nowHotfixUnityWebRequest != null)
@@ -69,6 +74,125 @@ public class DownloadManager : MonoSingleton<DownloadManager>
             StartCoroutine(DownloadIE(download));
 
             downloadingNow = true;
+        }
+    }
+
+    /// <summary>
+    /// 下载最新的热更新资源
+    /// </summary>
+    /// <param name="resVersion">最新res资源的版本号</param>
+    /// <param name="luaVersion">最新lua资源的版本号</param>
+    /// <param name="doneCallback">全部下载完成时的回调</param>
+    /// <param name="unitDoneCallback">单个文件下载完成回调</param>
+    /// <param name="downloadingCallback">下载中回调</param>
+    public static void DownloadServerLatestHotfixAsync(int resVersion, int luaVersion, Action doneCallback, Action<HotfixFileType, string, byte[]> unitDoneCallback = null, Action<float, ulong> downloadingCallback = null)
+    {
+        DownloadManager.Instance.StartCoroutine(DownloadServerLatestHotfixIE(resVersion, luaVersion, doneCallback, unitDoneCallback, downloadingCallback));
+    }
+
+    /// <summary>
+    /// 下载最新的热更新资源的协程
+    /// </summary>
+    /// <param name="resVersion"></param>
+    /// <param name="luaVersion"></param>
+    /// <param name="doneCallback"></param>
+    /// <param name="unitDoneCallback"></param>
+    /// <param name="downloadingCallback"></param>
+    /// <returns></returns>
+    private static IEnumerator DownloadServerLatestHotfixIE(int resVersion, int luaVersion, Action doneCallback, Action<HotfixFileType, string, byte[]> unitDoneCallback = null, Action<float, ulong> downloadingCallback = null)
+    {
+        //res
+        string resFileName = AppConst.ResString + resVersion + ".zip";
+        string resURL = AppConst.ServerLatestURL + resFileName;
+        FDebugger.Log("下载热更资源res路径：" + resURL);
+        nowHotfixUnityWebRequest = UnityWebRequest.Get(resURL);
+        nowHotfixDownloadingAction = downloadingCallback;
+
+        yield return nowHotfixUnityWebRequest.SendWebRequest();
+
+        if (nowHotfixUnityWebRequest.isNetworkError || nowHotfixUnityWebRequest.isHttpError)
+        {
+            FDebugger.LogErrorFormat("下载失败。下载链接：[{0}]。错误信息：\n{1}", resURL, nowHotfixUnityWebRequest.error);
+            nowHotfixUnityWebRequest = null;
+            nowHotfixDownloadingAction = null;
+
+            yield break;
+        }
+
+        if (unitDoneCallback != null)
+        {
+            unitDoneCallback.Invoke(HotfixFileType.Res, resFileName, nowHotfixUnityWebRequest.downloadHandler.data);
+        }
+        nowHotfixUnityWebRequest = null;
+        nowHotfixDownloadingAction = null;
+
+        //lua
+        string luaFileName = AppConst.LuaString + luaVersion + ".zip";
+        string luaURL = AppConst.ServerLatestURL + luaFileName;
+        FDebugger.Log("下载热更资源lua路径：" + luaURL);
+        nowHotfixUnityWebRequest = UnityWebRequest.Get(luaURL);
+        nowHotfixDownloadingAction = downloadingCallback;
+
+        yield return nowHotfixUnityWebRequest.SendWebRequest();
+
+        if (nowHotfixUnityWebRequest.isNetworkError || nowHotfixUnityWebRequest.isHttpError)
+        {
+            FDebugger.LogErrorFormat("下载失败。下载链接：[{0}]。错误信息：\n{1}", luaURL, nowHotfixUnityWebRequest.error);
+            nowHotfixUnityWebRequest = null;
+            nowHotfixDownloadingAction = null;
+
+            yield break;
+        }
+
+        if (unitDoneCallback != null)
+        {
+            unitDoneCallback.Invoke(HotfixFileType.Res, luaFileName, nowHotfixUnityWebRequest.downloadHandler.data);
+        }
+        nowHotfixUnityWebRequest = null;
+        nowHotfixDownloadingAction = null;
+
+        //pb文件。只要有更新就更新一次
+        UnityWebRequest pbFileListRequest = UnityWebRequest.Get(AppConst.ServerPbFileListURL);
+
+        yield return pbFileListRequest.SendWebRequest();
+
+        if (pbFileListRequest.isNetworkError || pbFileListRequest.isHttpError)
+        {
+            FDebugger.LogErrorFormat("下载失败。下载链接：[{0}]。错误信息：\n{1}", AppConst.ServerPbFileListURL, pbFileListRequest.error);
+
+            yield break;
+        }
+
+        //根据url下载所有pb文件
+        //检查路径是否存在
+        if (!Directory.Exists(AppConst.ClientMsgPbURL))
+        {
+            Directory.CreateDirectory(AppConst.ClientMsgPbURL);
+        }
+        PbFileListData pbFileListData = JsonMapper.ToObject<PbFileListData>(pbFileListRequest.downloadHandler.text);
+        foreach (string url in pbFileListData.URLList)
+        {
+            UnityWebRequest pbFileRequest = UnityWebRequest.Get(url);
+
+            yield return pbFileRequest.SendWebRequest();
+
+            if (pbFileRequest.isNetworkError || pbFileRequest.isHttpError)
+            {
+                FDebugger.LogErrorFormat("下载失败。下载链接：[{0}]。错误信息：\n{1}", url, pbFileRequest.error);
+
+                yield break;
+            }
+
+            string fileFullPath = AppConst.GetPbFileFullPathByURL(url);
+            FileStream fs = File.Create(fileFullPath);
+            fs.Write(pbFileRequest.downloadHandler.data, 0, pbFileRequest.downloadHandler.data.Length);
+            fs.Close();
+        }
+
+        //全部下载完成
+        if (doneCallback != null)
+        {
+            doneCallback.Invoke();
         }
     }
 

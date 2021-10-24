@@ -14,6 +14,18 @@ public class UIEventBindsWrap
 		L.RegFunction("EventTriggerAddEvent", EventTriggerAddEvent);
 		L.RegFunction("SliderAddValueChange", SliderAddValueChange);
 		L.RegFunction("SliderRemoveValueChange", SliderRemoveValueChange);
+		L.RegFunction("ScrollbarAddValueChange", ScrollbarAddValueChange);
+		L.RegFunction("ScrollbarRemoveValueChange", ScrollbarRemoveValueChange);
+		L.RegFunction("InputFieldAddValueChange", InputFieldAddValueChange);
+		L.RegFunction("InputFieldRemoveValueChange", InputFieldRemoveValueChange);
+		L.RegFunction("InputFieldAddEndEdit", InputFieldAddEndEdit);
+		L.RegFunction("InputFieldRemoveEndEdit", InputFieldRemoveEndEdit);
+		L.RegFunction("ScrollRectAddValueChange", ScrollRectAddValueChange);
+		L.RegFunction("ScrollViewRemoveValueChange", ScrollViewRemoveValueChange);
+		L.RegFunction("DropdownAddValueChange", DropdownAddValueChange);
+		L.RegFunction("DropdownRemoveValueChange", DropdownRemoveValueChange);
+		L.RegFunction("DropdownAddOption", DropdownAddOption);
+		L.RegFunction("DropdownSetOptions", DropdownSetOptions);
 		L.RegFunction("New", _CreateUIEventBinds);
 		L.RegFunction("__tostring", ToLua.op_ToString);
 		L.EndClass();
@@ -120,13 +132,30 @@ public class UIEventBindsWrap
 	{
 		try
 		{
-			ToLua.CheckArgsCount(L, 3);
-			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
-			int arg1 = (int)LuaDLL.luaL_checknumber(L, 2);
-			UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData> arg2 = (UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData>>(L, 3);
-			bool o = UIEventBinds.EventTriggerAddEvent(arg0, arg1, arg2);
-			LuaDLL.lua_pushboolean(L, o);
-			return 1;
+			int count = LuaDLL.lua_gettop(L);
+
+			if (count == 3 && TypeChecker.CheckTypes<int, UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData>>(L, 2))
+			{
+				UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+				int arg1 = (int)LuaDLL.lua_tonumber(L, 2);
+				UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData> arg2 = (UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData>)ToLua.ToObject(L, 3);
+				bool o = UIEventBinds.EventTriggerAddEvent(arg0, arg1, arg2);
+				LuaDLL.lua_pushboolean(L, o);
+				return 1;
+			}
+			else if (count == 3 && TypeChecker.CheckTypes<UnityEngine.EventSystems.EventTriggerType, UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData>>(L, 2))
+			{
+				UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+				UnityEngine.EventSystems.EventTriggerType arg1 = (UnityEngine.EventSystems.EventTriggerType)ToLua.ToObject(L, 2);
+				UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData> arg2 = (UnityEngine.Events.UnityAction<UnityEngine.EventSystems.BaseEventData>)ToLua.ToObject(L, 3);
+				bool o = UIEventBinds.EventTriggerAddEvent(arg0, arg1, arg2);
+				LuaDLL.lua_pushboolean(L, o);
+				return 1;
+			}
+			else
+			{
+				return LuaDLL.luaL_throw(L, "invalid arguments to method: UIEventBinds.EventTriggerAddEvent");
+			}
 		}
 		catch (Exception e)
 		{
@@ -161,6 +190,222 @@ public class UIEventBindsWrap
 			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
 			UnityEngine.Events.UnityAction<float> arg1 = (UnityEngine.Events.UnityAction<float>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<float>>(L, 2);
 			bool o = UIEventBinds.SliderRemoveValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int ScrollbarAddValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<float> arg1 = (UnityEngine.Events.UnityAction<float>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<float>>(L, 2);
+			bool o = UIEventBinds.ScrollbarAddValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int ScrollbarRemoveValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<float> arg1 = (UnityEngine.Events.UnityAction<float>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<float>>(L, 2);
+			bool o = UIEventBinds.ScrollbarRemoveValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int InputFieldAddValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<string> arg1 = (UnityEngine.Events.UnityAction<string>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<string>>(L, 2);
+			bool o = UIEventBinds.InputFieldAddValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int InputFieldRemoveValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<string> arg1 = (UnityEngine.Events.UnityAction<string>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<string>>(L, 2);
+			bool o = UIEventBinds.InputFieldRemoveValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int InputFieldAddEndEdit(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<string> arg1 = (UnityEngine.Events.UnityAction<string>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<string>>(L, 2);
+			bool o = UIEventBinds.InputFieldAddEndEdit(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int InputFieldRemoveEndEdit(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<string> arg1 = (UnityEngine.Events.UnityAction<string>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<string>>(L, 2);
+			bool o = UIEventBinds.InputFieldRemoveEndEdit(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int ScrollRectAddValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<UnityEngine.Vector2> arg1 = (UnityEngine.Events.UnityAction<UnityEngine.Vector2>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<UnityEngine.Vector2>>(L, 2);
+			bool o = UIEventBinds.ScrollRectAddValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int ScrollViewRemoveValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<UnityEngine.Vector2> arg1 = (UnityEngine.Events.UnityAction<UnityEngine.Vector2>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<UnityEngine.Vector2>>(L, 2);
+			bool o = UIEventBinds.ScrollViewRemoveValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int DropdownAddValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<int> arg1 = (UnityEngine.Events.UnityAction<int>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<int>>(L, 2);
+			bool o = UIEventBinds.DropdownAddValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int DropdownRemoveValueChange(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.Events.UnityAction<int> arg1 = (UnityEngine.Events.UnityAction<int>)ToLua.CheckDelegate<UnityEngine.Events.UnityAction<int>>(L, 2);
+			bool o = UIEventBinds.DropdownRemoveValueChange(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int DropdownAddOption(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			UnityEngine.UI.Dropdown.OptionData arg1 = (UnityEngine.UI.Dropdown.OptionData)ToLua.CheckObject<UnityEngine.UI.Dropdown.OptionData>(L, 2);
+			bool o = UIEventBinds.DropdownAddOption(arg0, arg1);
+			LuaDLL.lua_pushboolean(L, o);
+			return 1;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int DropdownSetOptions(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 2);
+			UnityEngine.Transform arg0 = (UnityEngine.Transform)ToLua.CheckObject<UnityEngine.Transform>(L, 1);
+			System.Collections.Generic.List<UnityEngine.UI.Dropdown.OptionData> arg1 = (System.Collections.Generic.List<UnityEngine.UI.Dropdown.OptionData>)ToLua.CheckObject(L, 2, typeof(System.Collections.Generic.List<UnityEngine.UI.Dropdown.OptionData>));
+			bool o = UIEventBinds.DropdownSetOptions(arg0, arg1);
 			LuaDLL.lua_pushboolean(L, o);
 			return 1;
 		}

@@ -1,0 +1,29 @@
+//配置协议的例子
+syntax = "proto3";
+
+package Example;
+
+//获取密钥请求
+message SecretKeyRequest{
+    //客户端的消息公钥
+    string publicKey = 1;
+}
+
+//获取密钥响应
+message SecretKeyReceive{
+    //密钥内容
+    string secretKey = 1;
+    //服务端消息公钥
+    string msgPublicKey = 2;
+}
+
+//心跳包请求
+message HeartbeatRequest{
+    //时间戳
+    int64 pingTime = 1;
+}
+
+//心跳包响应
+message HeartbeatReceive{
+}
+

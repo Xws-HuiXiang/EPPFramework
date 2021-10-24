@@ -7,11 +7,57 @@ public class DownloadManagerWrap
 	public static void Register(LuaState L)
 	{
 		L.BeginClass(typeof(DownloadManager), typeof(MonoSingleton<DownloadManager>));
+		L.RegFunction("DownloadServerLatestHotfixAsync", DownloadServerLatestHotfixAsync);
 		L.RegFunction("DownloadServerHotfixAsync", DownloadServerHotfixAsync);
 		L.RegFunction("DownloadFile", DownloadFile);
 		L.RegFunction("__eq", op_Equality);
 		L.RegFunction("__tostring", ToLua.op_ToString);
 		L.EndClass();
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int DownloadServerLatestHotfixAsync(IntPtr L)
+	{
+		try
+		{
+			int count = LuaDLL.lua_gettop(L);
+
+			if (count == 3)
+			{
+				int arg0 = (int)LuaDLL.luaL_checknumber(L, 1);
+				int arg1 = (int)LuaDLL.luaL_checknumber(L, 2);
+				System.Action arg2 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 3);
+				DownloadManager.DownloadServerLatestHotfixAsync(arg0, arg1, arg2);
+				return 0;
+			}
+			else if (count == 4)
+			{
+				int arg0 = (int)LuaDLL.luaL_checknumber(L, 1);
+				int arg1 = (int)LuaDLL.luaL_checknumber(L, 2);
+				System.Action arg2 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 3);
+				System.Action<HotfixFileType,string,byte[]> arg3 = (System.Action<HotfixFileType,string,byte[]>)ToLua.CheckDelegate<System.Action<HotfixFileType,string,byte[]>>(L, 4);
+				DownloadManager.DownloadServerLatestHotfixAsync(arg0, arg1, arg2, arg3);
+				return 0;
+			}
+			else if (count == 5)
+			{
+				int arg0 = (int)LuaDLL.luaL_checknumber(L, 1);
+				int arg1 = (int)LuaDLL.luaL_checknumber(L, 2);
+				System.Action arg2 = (System.Action)ToLua.CheckDelegate<System.Action>(L, 3);
+				System.Action<HotfixFileType,string,byte[]> arg3 = (System.Action<HotfixFileType,string,byte[]>)ToLua.CheckDelegate<System.Action<HotfixFileType,string,byte[]>>(L, 4);
+				System.Action<float,ulong> arg4 = (System.Action<float,ulong>)ToLua.CheckDelegate<System.Action<float,ulong>>(L, 5);
+				DownloadManager.DownloadServerLatestHotfixAsync(arg0, arg1, arg2, arg3, arg4);
+				return 0;
+			}
+			else
+			{
+				return LuaDLL.luaL_throw(L, "invalid arguments to method: DownloadManager.DownloadServerLatestHotfixAsync");
+			}
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
 	}
 
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]

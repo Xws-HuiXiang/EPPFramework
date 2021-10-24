@@ -1,7 +1,6 @@
 require "Protocol/MsgID"
 require "Protocol/MsgStringID"
 require "Managers/NetworkLuaManager"
---require "Protocol/Tables/CommonTable"
 
 pb = require 'pb'
 protoc = require "LuaProtobuf/protoc"
@@ -11,8 +10,6 @@ local this = AwakeMain;
 
 ---这个函数会在Main函数之前调用。用于处理业务逻辑之前的部分事件。这个函数调用时还没有连接服务器
 function this.Awake()
-    --FDebugger.Log("AwakeMain.Awake执行");
-
     --注册获取私钥响应事件
     NetworkManager.AddProtocolHandle(MsgHandleID.Common, MsgCommonMethodID.SecretKeyReceive, NetworkLuaManager.OnSecretKeyReceive);
 

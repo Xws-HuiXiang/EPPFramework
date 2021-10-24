@@ -65,8 +65,8 @@ public class LoadingManager : MonoSingleton<LoadingManager>
     {
         SetProgressText("对比服务器版本");
 
-        //开发模式下不检查版本
-        if (!AppConst.DevMode)
+        //加载工程目录下的资源时，不检查版本
+        if (!AppConst.LoadLoaclAssetBundle)
         {
             DownloadManager.DownloadFile(AppConst.ServerVersionFileURL,
                 (data) => 
@@ -86,7 +86,7 @@ public class LoadingManager : MonoSingleton<LoadingManager>
         {
             FDebugger.Log("处于开发模式，不下载版本信息");
 
-            GetHotfixVersionHandle(0, 0);
+            GetHotfixVersionHandle(1, 1);
         }
 
         //从服务器拉取最下面显示的提示文字
@@ -174,8 +174,8 @@ public class LoadingManager : MonoSingleton<LoadingManager>
             {
                 try
                 {
-                    //开发模式下不检查版本更新
-                    if (!AppConst.DevMode)
+                    //加载工程目录资源的模式下不检查版本更新
+                    if (!AppConst.LoadLoaclAssetBundle)
                     {
                         int localResVersionNum = config.ResVersion;
                         int localLuaVersionNum = config.LuaVersion;
@@ -405,7 +405,7 @@ public class LoadingManager : MonoSingleton<LoadingManager>
 
                 //开始下载更新资源
                 //TODO:加载界面显示下载资源的 当前网速
-                DownloadManager.DownloadServerHotfixAsync(0, resVersion, 0, luaVersion, DownloadDoneCallback, DownloadUnitDoneCallback, DownloadingCallback);
+                DownloadManager.DownloadServerLatestHotfixAsync(resVersion, luaVersion, DownloadDoneCallback, DownloadUnitDoneCallback, DownloadingCallback);
 
                 //下载中的刷新提示文字的协程
                 StartCoroutine(DownloadingCallbackIE());
@@ -433,9 +433,9 @@ public class LoadingManager : MonoSingleton<LoadingManager>
                 //zipPath = new Uri(Path.Combine(AppConst.LocalResourceFolderPath, AppConst.ResString + i.ToString() + ".zip")).AbsoluteUri;
                 zipPath = Path.Combine(AppConst.LocalResourceFolderPath, AppConst.ResString + i.ToString() + ".zip");
 #elif UNITY_IOS
-                zipPath = Path.Combine(resABRootPath, AppConst.ResString + i.ToString() + ".zip");
+                zipPath = Path.Combine(AppConst.LocalResourceFolderPath, AppConst.ResString + i.ToString() + ".zip");
 #else
-                zipPath = Path.Combine(resABRootPath, AppConst.ResString + i.ToString() + ".zip");
+                zipPath = Path.Combine(AppConst.LocalResourceFolderPath, AppConst.ResString + i.ToString() + ".zip");
 #endif
 
                 FDebugger.Log("zipPath:" + zipPath);

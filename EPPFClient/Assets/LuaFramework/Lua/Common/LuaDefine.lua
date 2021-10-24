@@ -19,14 +19,3 @@ LuaEventTriggerType =
     Submit = 15,
     Cancel = 16
 }
-
----默认头像的服务器根路径
-DefaultAvatarRootURL = "https://www.qinghuixiang.com:443/File/UNOHotfixFile/DefaultAvatar/";
-
----默认的房间名称列表
-DefaultRoomNameList = {
-    "决战到天亮",
-    "再来亿盘！",
-    "娱乐局来人啦",
-    "但求一败"
-}

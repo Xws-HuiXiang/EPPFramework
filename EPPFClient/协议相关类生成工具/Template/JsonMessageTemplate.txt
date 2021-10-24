@@ -1,0 +1,26 @@
+        {
+			"HandleMethodID": "Request",
+			"HandleMethodIDValue": 0,
+			"HandleMethodDescription": "",
+			"Parameters": [
+				{
+					"Name": "",
+					"ProtoType": "",
+					"SerializeTag": 1,
+					"Description": ""
+				}
+			]
+		},
+		{
+			"HandleMethodID": "Receive",
+			"HandleMethodIDValue": 1,
+			"HandleMethodDescription": "",
+			"Parameters": [
+				{
+					"Name": "",
+					"ProtoType": "",
+					"SerializeTag": 1,
+					"Description": ""
+				}
+			]
+		}

@@ -45,37 +45,4 @@ public class GameObjectPathEditor : MonoBehaviour
 
         Debug.Log("拷贝的内容：" + copyContent);
     }
-
-    [MenuItem("Tools/排版测试")]
-    public static void Length()
-    {
-        if (Selection.activeTransform != null)
-        {
-            Vector3 startPos = new Vector3(-350, -323, 0);
-            float xOffset = 100;
-            float xGradient = 2;
-            float yOffset = 95;
-
-            for(int i = 0; i < 64; i++)
-            {
-                RectTransform rectTrans = Selection.activeTransform.GetChild(i).GetComponent<RectTransform>();
-
-                int row = i / 8;
-                int column = i % 8;
-
-                float x = column * xOffset;
-                if(column < 4)
-                {
-                    x += row * xGradient;
-                }
-                else
-                {
-                    x -= row * xGradient;
-                }
-                float y = row * yOffset;
-
-                rectTrans.anchoredPosition = new Vector2(startPos.x + x, startPos.y + y);
-            }
-        }
-    }
 }

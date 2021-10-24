@@ -39,7 +39,7 @@ public struct MsgQueue
 
 public class NetworkManager : MonoSingleton<NetworkManager>
 {
-    private static string publicKey = "UNOServer";
+    private static string publicKey = "EPPFrameworkServer";
     /// <summary>
     /// 公钥
     /// </summary>
@@ -424,7 +424,7 @@ public class NetworkManager : MonoSingleton<NetworkManager>
         }
         catch (Exception e)
         {
-            Debug.LogError("发送消息失败：" + e.Message);
+            FDebugger.LogErrorFormat(string.Format("发送消息失败：{0}", e.Message));
         }
     }
 

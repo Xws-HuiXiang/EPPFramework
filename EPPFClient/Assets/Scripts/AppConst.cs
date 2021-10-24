@@ -18,6 +18,10 @@ public class AppConst
     /// </summary>
     public const string RELEASE_STRING = "Release";
     /// <summary>
+    /// 各种网络路径的根网址
+    /// </summary>
+    public const string ROOT_URL = "";
+    /// <summary>
     /// 表示资源的字符串
     /// </summary>
     public static string ResString { get { return "Res"; } }
@@ -52,6 +56,12 @@ public class AppConst
     /// UnityAds的广告投放是否启用开发模式
     /// </summary>
     public static bool AdsTestMod { get { return adsTestMod; } }
+    private static bool loadProjectScene = true;
+    /// <summary>
+    /// 是否加载工程目录中的场景
+    /// </summary>
+    public static bool LoadProjectScene { get { return loadProjectScene; } }
+
     /// <summary>
     /// 连接服务器的ip地址
     /// </summary>
@@ -83,7 +93,7 @@ public class AppConst
             }
             else
             {
-                return "api.qinghuixiang.com";
+                return "";
             }
         }
     }
@@ -124,6 +134,19 @@ public class AppConst
     }
 
     /// <summary>
+    /// 服务器中存放最后热更新资源的目录
+    /// </summary>
+    public static string ServerLatestURL
+    {
+        get
+        {
+            string devModeString = DevMode ? DEVELOPMENT_STRING : RELEASE_STRING;
+
+            return string.Format("{0}/{1}/{2}/Latest/", ROOT_URL, devModeString, GetPlatformName());
+        }
+    }
+
+    /// <summary>
     /// 服务器存放资源Res的文件夹
     /// </summary>
     public static string ServerResURL
@@ -132,7 +155,7 @@ public class AppConst
         {
             string devModeString = DevMode ? DEVELOPMENT_STRING : RELEASE_STRING;
 
-            return string.Format("https://www.qinghuixiang.com:443/File/UNOHotfixFile/{0}/{1}/Res/", devModeString, GetPlatformName());
+            return string.Format("{0}/{1}/{2}/Res/", ROOT_URL, devModeString, GetPlatformName());
         }
     }
 
@@ -145,7 +168,7 @@ public class AppConst
         {
             string devModeString = DevMode ? DEVELOPMENT_STRING : RELEASE_STRING;
 
-            return string.Format("https://www.qinghuixiang.com:443/File/UNOHotfixFile/{0}/{1}/Lua/", devModeString, GetPlatformName());
+            return string.Format("{0}/{1}/{2}/Lua/", ROOT_URL, devModeString, GetPlatformName());
         }
     }
 
@@ -158,7 +181,7 @@ public class AppConst
         {
             string devModeString = DevMode ? DEVELOPMENT_STRING : RELEASE_STRING;
 
-            return string.Format("https://www.qinghuixiang.com:443/File/UNOHotfixFile/{0}/{1}/Config.cfg", devModeString, GetPlatformName());
+            return string.Format("{0}/{1}/{2}/Config.cfg", ROOT_URL, devModeString, GetPlatformName());
         }
     }
 
@@ -172,7 +195,7 @@ public class AppConst
         {
             string devModeString = DevMode ? DEVELOPMENT_STRING : RELEASE_STRING;
 
-            return string.Format("https://www.qinghuixiang.com:443/File/UNOHotfixFile/{0}/{1}/Version.cfg", devModeString, GetPlatformName());
+            return string.Format("{0}/{1}/{2}/Version.cfg", ROOT_URL, devModeString, GetPlatformName());
         }
     }
 
@@ -264,6 +287,8 @@ public class AppConst
         platform = "Windows";
 #elif UNITY_ANDROID
         platform = "Android";
+#elif UNITY_EDITOR_OSX
+        platform = "MacOS";
 #elif UNITY_IOS
         platform = "iOS";
 #else
@@ -282,13 +307,13 @@ public class AppConst
         return Path.Combine(Application.persistentDataPath, "Config.cfg");
     }
 
-    private static string zipPassword = "UNO";
+    private static string zipPassword = "ZIPPassword";
     /// <summary>
     /// Res和Lua的zip压缩文件的密码
     /// </summary>
     public static string ZipPassword { get { return zipPassword; } }
 
-    private static string abPackageKey = "abcdefgh";
+    private static string abPackageKey = "ABPackageAESKey";
     /// <summary>
     /// 资源的ab包加解密用的密钥
     /// </summary>
@@ -331,7 +356,7 @@ public class AppConst
         {
             string devModeString = DevMode ? DEVELOPMENT_STRING : RELEASE_STRING;
 
-            return string.Format("https://www.qinghuixiang.com:443/File/UNOHotfixFile/{0}/Protos/PbFileList.cfg", devModeString);
+            return string.Format("{0}/{1}/Protos/PbFileList.cfg", ROOT_URL, devModeString);
         }
     }
 
@@ -383,6 +408,86 @@ public class AppConst
                 //在上线版使用https
                 return string.Format("https://{0}:{1}/LoadingTips/GetTip", HttpIP, HttpRequestPort);
             }
+        }
+    }
+
+    /// <summary>
+    /// 服务器上的 场景文件的版本号信息文件路径
+    /// </summary>
+    public static string ServerSceneVersionURL
+    {
+        get
+        {
+            string devModeString = DevMode ? DEVELOPMENT_STRING : RELEASE_STRING;
+
+            return string.Format("{0}/{1}/{2}/Scene/SceneVersion.cfg", ROOT_URL, devModeString, GetPlatformName());
+        }
+    }
+
+    /// <summary>
+    /// 服务器端FirstScene文件路径
+    /// </summary>
+    /// <param name="version"></param>
+    /// <returns></returns>
+    public static string ServerSceneFileURL(int version, string sceneName)
+    {
+        string devModeString = DevMode ? DEVELOPMENT_STRING : RELEASE_STRING;
+
+        return string.Format("{0}/{1}/{2}/Scene/{3}/{4}/{5}", ROOT_URL, devModeString, GetPlatformName(), sceneName, version, sceneName.ToLower());
+    }
+
+    /// <summary>
+    /// 本地First场景ab包路径
+    /// </summary>
+    public static string LocalFirstScenePath
+    {
+        get
+        {
+            return Path.Combine(Application.persistentDataPath, GetPlatformName(), "Scene", "firstscene");
+        }
+    }
+
+    /// <summary>
+    /// 本地Loading场景ab包路径
+    /// </summary>
+    public static string LocalLoadingScenePath
+    {
+        get
+        {
+            return Path.Combine(Application.persistentDataPath, GetPlatformName(), "Scene", "loadingscene");
+        }
+    }
+
+    /// <summary>
+    /// 本地Game场景ab包路径
+    /// </summary>
+    public static string LocalGameScenePath
+    {
+        get
+        {
+            return Path.Combine(Application.persistentDataPath, GetPlatformName(), "Scene", "gamescene");
+        }
+    }
+
+    /// <summary>
+    /// 本地场景版本信息文件路径
+    /// </summary>
+    public static string LocalSceneVersionPath
+    {
+        get
+        {
+            return Path.Combine(Application.persistentDataPath, GetPlatformName(), "Scene", "SceneVersion.cfg");
+        }
+    }
+
+    /// <summary>
+    /// 场景信息文件的总文件夹路径
+    /// </summary>
+    public static string LocalSceneVersionFolderPath
+    {
+        get
+        {
+            return Path.Combine(Application.persistentDataPath, GetPlatformName(), "Scene");
         }
     }
 }

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.15.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="protoc.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Command\CommandList\Broadcast\" />
+    <Folder Include="Command\CommandList\MySQL\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EPPFramework\EPPFrameworkServer.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,7 @@
+EPPClient/Library
+EPPFClient/Assets/EasyPrivatePersonTools/EPPBase/Editor/EPPToolsSettingAsset.asset
+EPPFClient/ProjectSettings/
+EPPFServer/.vs/
+EPPFServer/EPPFramework/obj/
+EPPFServer/GameServerConsole/obj/
+EPPFServer/GameServerConsole/bin/

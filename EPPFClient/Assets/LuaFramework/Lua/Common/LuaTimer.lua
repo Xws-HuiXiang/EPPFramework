@@ -31,14 +31,17 @@ end
 
 ---移除间隔一定时间执行的函数
 function this.RemoveLoopTimer(callback)
+    local index = 1;
     for k, v in pairs(loopAction) do
         local fun = v["action"];
         if (fun == callback) then
             --移除
-            table.remove(k);
+            table.remove(loopAction, index);
 
             break;
         end
+
+        index = index + 1;
     end
 end
 

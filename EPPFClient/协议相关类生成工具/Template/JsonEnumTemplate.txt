@@ -1,0 +1,18 @@
+	"MessageEnum": [
+		{
+			"EnumName": "",
+			"EnumDescription": "",
+			"EnumItem": [
+				{
+					"EnumItemName": "",
+					"EnumItemValue": 0,
+					"EnumItemDescription": ""
+				},
+				{
+					"EnumItemName": "",
+					"EnumItemValue": 1,
+					"EnumItemDescription": ""
+				}
+			]
+		}
+	]
