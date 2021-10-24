@@ -83,7 +83,7 @@ namespace EPPTools.Utils
                         }
                     }
 
-                    string pFilePath = targetDirPath + "\\" + Path.GetFileName(file);
+                    string pFilePath = Path.Combine(targetDirPath, Path.GetFileName(file));
                     //if (File.Exists(pFilePath))
                     //    continue;
                     File.Copy(file, pFilePath, overwriteFile);
@@ -110,7 +110,7 @@ namespace EPPTools.Utils
 
                     if (isCopy)
                     {
-                        CopyDirectory(dir, targetDirPath + "\\" + Path.GetFileName(dir), ignoreSuffix, ignoreFolder, overwriteFile);
+                        CopyDirectory(dir, Path.Combine(targetDirPath, Path.GetFileName(dir)), ignoreSuffix, ignoreFolder, overwriteFile);
                     }
                 }
             }
