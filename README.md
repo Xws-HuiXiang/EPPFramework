@@ -127,11 +127,21 @@ AppConst主要字段的解释（代码内也有详细注释）：
 
 将公钥设置与服务器相同后，启动服务器，再启动客户端，即可看到服务器输出”有客户端连接“的日志。
 
+#### 创建第一个Panel
+
+1. 随便找一个Canvas，创建一个空物体（推荐锚点设置为按住alt点右下角的哪个设置）
+2. 修改名称为xxxPanel。注意以Panel结尾，这个很重要。
+3. 转换为预制体。在`Assets/LuaFramework/Builder`文件夹下新建一个文件夹，将预制体拖拽到这个文件夹中。**这个文件夹名称将作为ab包的名称，其中的所有预制体在打包时会打包到对应的ab包内。**
+4. （步骤5和6有编辑器扩展快速创建，详见‘创建Panel对应的Ctrl和View文件的扩展’）
+5. 在`Assets/LuaFramework/Lua/Ctrl|View`文件夹创建对应的`xxxCtrl.lua`和`xxxPanel.lua`文件。
+6. 在`Assets/LuaFramework/Lua/Managers/CtrlLuaManager.lua`文件内，添加三项内容：添加刚刚创建的Ctrl文件引用、CtrlNames表内添加对应的字段、函数`this.New()`中对`CtrlNames`对应字段赋值。
+7. 在Lua代码中，使用`Panel.OpenPanel(CtrlNames.xxxCtrl);`即可创建一个Panel。
+
+#### 创建Panel对应的Ctrl和View文件的扩展
+
 #### 如何打包资源
 
 #### 如何打包场景
-
-#### 创建第一个Panel
 
 ### 3.相关工具说明
 
