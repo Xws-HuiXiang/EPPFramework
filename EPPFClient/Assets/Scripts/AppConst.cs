@@ -38,7 +38,7 @@ public class AppConst
 
     private static bool loadLoaclAssetBundle = true;
     /// <summary>
-    /// 是否加载工程目录下的AssetBundle
+    /// 是否加载工程目录下的资源
     /// </summary>
     public static bool LoadLoaclAssetBundle { get { return loadLoaclAssetBundle; } }
     private static bool useLocalIP = true;
