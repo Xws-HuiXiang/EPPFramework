@@ -1,5 +1,5 @@
 # EPPFramework
-增量式更新的前后端框架。
+C#服务器+Unity客户端的简单增量式热更新框架。
 
 *首次运行框架需要修改较多配置信息。*
 
@@ -8,6 +8,7 @@
 1. 如果未特殊标明，框架内的*.cfg文件内容均为**json**格式。
 2. 目前没有区分资源服务器和逻辑服务器，需要自行修改。
 3. 与一般通信消息协议不同，这个框架内消息格式为：'int32''int32''int32''string'。分别为：'消息总长度''消息处理器ID''消息处理器中方法ID''消息体'。
+4. Unity版本为2019.3.15f1。
 
 ### 1.运行服务器
 
@@ -76,8 +77,8 @@ AppConst主要字段的解释（代码内也有详细注释）：
 
 #### 创建第一个Panel
 
-1. 随便找一个Canvas，创建一个空物体（推荐锚点设置为按住alt点右下角的哪个设置）
-2. 修改名称为xxxPanel。注意以Panel结尾，这个很重要。
+1. 随便找一个Canvas，创建一个空物体（推荐锚点设置为按住alt点右下角的那个设置）
+2. 修改名称为xxxPanel。注意以**Panel**结尾，这个很重要。
 3. 转换为预制体。在`Assets/LuaFramework/Builder`文件夹下新建一个文件夹，将预制体拖拽到这个文件夹中。**这个文件夹名称将作为ab包的名称，其中的所有预制体在打包时会打包到对应的ab包内。**
 4. （步骤5和6有编辑器扩展快速创建，详见‘创建Panel对应的Ctrl和View文件的扩展’）
 5. 在`Assets/LuaFramework/Lua/Ctrl|View`文件夹创建对应的`xxxCtrl.lua`和`xxxPanel.lua`文件。
@@ -86,12 +87,34 @@ AppConst主要字段的解释（代码内也有详细注释）：
 
 #### 创建Panel对应的Ctrl和View文件的扩展
 
+点击菜单栏`EPP Tools/Create ToLua File`将打开创建文件的窗口。默认情况下，设置“AssetBundle名称”、**在Hierarchy窗口中选中要生成文件的Panel游戏物体**，再点击“从Lua模板创建”即可创建对应的Ctrl和Panel文件，并将在`CtrlLuaManager`内添加对应的引用。
+
+若勾选了“添加Button事件监听”，则在Panel文件中添加Button游戏物体的引用且在Ctrl文件中添加Button的事件，Toggle同理。
+
+“创建空Lua文件”将不写文件内容。
+
+将对应的Panel游戏物体下的子物体拖拽到窗口中，则在创建文件时在Panel文件中添加对应物体的引用。
+
 #### 如何打包资源
 
+**因为资源包使用加密算法进行加密，所以必须使用框架内的打包工具或自行修改打包后的资源。**
+
+点击菜单栏`EPP Tools/Create Assets Bundle`将打开生成ab包的扩展窗口。
+
+其中，“资源打包范围”若选择为“Distributed Folder”则只会打包“资源根目录”指定的文件夹下的文件，每个文件夹作为一个ab包；其他选项打出来的包是整个工程中可以打包的资源均会打成资源包。“Lua代码根目录”是项目逻辑Lua文件的根目录。“ToLua代码根目录”为ToLua框架带的Lua代码文件目录。“打包资源”和“打包Lua代码”控制是否打包Res和Lua。压缩方式和目标平台根据项目自行选择，不同平台的ab包格式不同不能通用。
+
 #### 如何打包场景
+
+场景包为没有后缀名、不加密的普通ab包文件，即只要用Unity官方提供的ab包管理器即可。
+
+点击菜单栏`Window/AssetsBundle Browser`（若没有此选项则到Package Manager中安装），其中含有名为`firstscene`、`loadingscene`和`gamescene`的三个包（若没有则右键创建，并将对应名称的场景文件拖拽到Configure右侧窗口），切换到`Build`选项卡，按需选择平台，填写ab包输出目录后点击Build即可。
+
+构建完成的ab包存在与Assets同级目录下的执行目录内，将`firstscene`、`loadingscene`和`gamescene`拷贝到持久化目录或服务器上即可。
 
 ### 3.相关工具说明
 
 ##### 协议相关类生成工具
 
 ##### 热更新资源版本控制工具
+
+### 4.其他
